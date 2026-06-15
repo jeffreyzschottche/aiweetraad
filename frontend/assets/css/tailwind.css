@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream text-ink antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+  ::selection {
+    @apply bg-blush-300 text-brand-800;
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-200;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white shadow-soft hover:-translate-y-0.5 hover:bg-brand-700 active:translate-y-0;
+  }
+  .btn-accent {
+    @apply btn bg-blush-300 text-brand-800 shadow-soft hover:-translate-y-0.5 hover:bg-blush-400 hover:text-white active:translate-y-0;
+  }
+  .btn-ghost {
+    @apply btn border-2 border-brand-100 bg-white text-brand-700 hover:border-brand-300 hover:bg-brand-50;
+  }
+  .card {
+    @apply rounded-3xl border border-brand-100/60 bg-white shadow-card;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold;
+  }
+  .field {
+    @apply w-full rounded-2xl border-2 border-brand-100 bg-white px-4 py-3 text-sm text-ink transition focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100;
+  }
+  .prose-content :where(h2) {
+    @apply mt-7 mb-2 font-display text-xl font-bold text-brand-800;
+  }
+  .prose-content :where(p) {
+    @apply mb-4 leading-relaxed text-ink/80;
+  }
+  .prose-content :where(ul) {
+    @apply mb-4 list-disc space-y-1.5 pl-5 text-ink/80;
+  }
+  .prose-content :where(a) {
+    @apply font-semibold text-brand-600 underline decoration-blush-300 decoration-2 underline-offset-2 hover:text-brand-700;
+  }
+}
+
+/* Hide content until GSAP reveals it (only when JS + reveal are active) */
+.gsap-prep {
+  opacity: 0;
+}
