@@ -21,7 +21,7 @@ class AiModel extends Model
         'enabled' => 'boolean',
     ];
 
-    protected $hidden = ['system_prompt'];
+    protected $hidden = ['provider', 'model_identifier', 'system_prompt'];
 
     public function answers(): HasMany
     {

@@ -6,6 +6,9 @@ use Database\Seeders\AiModelSeeder;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\QuestionSeeder;
 use App\Models\AiProviderUsage;
+use App\Models\AiModel;
+use App\Models\Question;
+use App\Services\AI\AnswerGenerator;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -20,6 +23,113 @@ Artisan::command('content:refresh-demo', function () {
 
     $this->info('Demo categorieen, vragen en AI-antwoorden zijn opnieuw gevuld.');
 })->purpose('Refresh category questions and varied demo AI answers without external API calls');
+
+Artisan::command('content:generate-ai-answers
+    {--force : Vervang bestaande antwoorden}
+    {--limit=0 : Maximaal aantal vragen, 0 is alles}
+    {--question= : Alleen deze vraag-slug opnieuw genereren}
+    {--dry-run : Toon wat er zou gebeuren zonder antwoorden te genereren}
+    {--allow-stub-fallback : Sta offline fallback toe als alle echte providers falen}', function () {
+    config([
+        'ai.generation_enabled' => true,
+        'ai.allow_stub_fallback' => (bool) $this->option('allow-stub-fallback'),
+    ]);
+
+    $providers = collect(config('ai.providers', []))
+        ->map(fn (array $provider, string $name) => [
+            'provider' => $name,
+            'key' => empty($provider['key']) ? 'nee' : 'ja',
+            'credit_usd' => (float) ($provider['credit_usd'] ?? 0),
+            'spent_today_usd' => AiProviderUsage::spentToday($name) + (float) ($provider['spent_today_usd'] ?? 0),
+        ]);
+
+    $this->table(
+        ['Provider', 'API key', 'Credit USD', 'Spent today USD'],
+        $providers->map(fn ($row) => [
+            $row['provider'],
+            $row['key'],
+            number_format($row['credit_usd'], 2),
+            number_format($row['spent_today_usd'], 6),
+        ])->values()->all()
+    );
+
+    $hasUsableProvider = $providers->contains(
+        fn ($row) => $row['key'] === 'ja' && $row['credit_usd'] > $row['spent_today_usd']
+    );
+
+    if (! $hasUsableProvider && ! $this->option('allow-stub-fallback')) {
+        $this->error('Geen provider heeft tegelijk een API-key en resterend budget. Vul je .env credits/keys of gebruik --allow-stub-fallback.');
+        return 1;
+    }
+
+    $enabledModelCount = AiModel::enabled()->count();
+    if ($enabledModelCount === 0) {
+        $this->error('Er zijn geen actieve AI-modellen.');
+        return 1;
+    }
+
+    $query = Question::query()
+        ->where('status', 'published')
+        ->withCount('answers')
+        ->orderBy('id');
+
+    if ($slug = $this->option('question')) {
+        $query->where('slug', $slug);
+    }
+
+    $limit = (int) $this->option('limit');
+    if ($limit > 0) {
+        $query->limit($limit);
+    }
+
+    $questions = $query->get();
+
+    if (! $this->option('force')) {
+        $questions = $questions
+            ->filter(fn (Question $question) =>
+                $question->answers_count < $enabledModelCount
+                || $question->answers()->where('status', 'failed')->exists()
+            )
+            ->values();
+    }
+
+    if ($questions->isEmpty()) {
+        $this->info('Geen vragen gevonden om te genereren.');
+        return 0;
+    }
+
+    $this->info(($this->option('dry-run') ? 'Dry-run: ' : '') . $questions->count() . ' vraag/vragen geselecteerd.');
+
+    if ($this->option('dry-run')) {
+        $questions->each(fn (Question $question) => $this->line('- ' . $question->slug . ' | ' . $question->title));
+        return 0;
+    }
+
+    $generator = app(AnswerGenerator::class);
+    $force = (bool) $this->option('force');
+    $bar = $this->output->createProgressBar($questions->count());
+    $bar->start();
+
+    $created = 0;
+    $failed = 0;
+
+    foreach ($questions as $question) {
+        $answers = collect($generator->generateForQuestion($question, $force));
+        $created += $answers->count();
+        $failed += $answers->where('status', 'failed')->count();
+        $bar->advance();
+    }
+
+    $bar->finish();
+    $this->newLine(2);
+    $this->info("Klaar. {$created} antwoorden aangemaakt/vervangen, {$failed} failed.");
+
+    if ($failed > 0) {
+        $this->warn('Er zijn failed antwoorden. Check je provider keys, credits en logs.');
+    }
+
+    return 0;
+})->purpose('Generate real AI answers for existing questions using configured provider keys and budgets');
 
 Artisan::command('ai:usage {date?}', function (?string $date = null) {
     $date = $date ?: now()->toDateString();

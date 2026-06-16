@@ -8,8 +8,8 @@
               {{ initials }}
             </span>
             <div class="min-w-0">
-              <p class="truncate text-lg font-bold text-slate-900">{{ authStore.user.name }}</p>
-              <p class="truncate text-sm text-slate-500">{{ authStore.user.email }}</p>
+              <p class="truncate text-lg font-bold text-brand-900">{{ authStore.user.name }}</p>
+              <p class="truncate text-sm text-ink/50">{{ authStore.user.email }}</p>
             </div>
           </div>
 
@@ -35,7 +35,7 @@
             E-mailadres bevestigd
           </div>
 
-          <div class="grid grid-cols-2 gap-3 border-t border-slate-100 pt-5">
+          <div class="grid grid-cols-2 gap-3 border-t border-brand-100 pt-5">
             <div class="rounded-2xl bg-brand-50 p-4 text-center">
               <p class="font-display text-2xl font-bold text-brand-700">{{ activity?.stats.questions ?? 0 }}</p>
               <p class="text-xs font-semibold text-ink/50">Vragen</p>
@@ -57,7 +57,7 @@
 
       <main>
         <div class="mb-6">
-          <h1 class="font-display text-3xl font-extrabold text-slate-900">Mijn profiel</h1>
+          <h1 class="font-display text-3xl font-extrabold text-brand-900">Mijn profiel</h1>
           <p class="mt-1 text-ink/60">Je gestelde vragen en antwoorden waarvan je hebt gezegd dat ze werken.</p>
         </div>
 

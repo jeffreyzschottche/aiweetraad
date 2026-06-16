@@ -20,9 +20,7 @@ export function useAiLogo() {
     if (!model) return null;
 
     const slug = model.slug?.toLowerCase();
-    const provider = model.provider?.toLowerCase();
-
-    const logo = AI_LOGOS[slug] || AI_LOGOS[provider];
+    const logo = AI_LOGOS[slug];
 
     return logo || (model.logo_url ? { src: model.logo_url, needsWhiteBg: false } : null);
   }

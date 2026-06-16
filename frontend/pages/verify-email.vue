@@ -1,32 +1,39 @@
 <template>
   <NuxtLayout name="auth">
-    <div class="rounded-lg bg-white p-8 text-center shadow">
+    <div class="card p-8 text-center">
       <div v-if="loading" class="py-8">
-        <p class="text-gray-600">Je e-mailadres bevestigen...</p>
+        <div class="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-3xl bg-brand-50 text-brand-600">
+          <svg class="h-8 w-8 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" />
+          </svg>
+        </div>
+        <h1 class="font-display text-3xl font-extrabold text-brand-900">E-mailadres bevestigen</h1>
+        <p class="mt-2 text-sm text-ink/60">We controleren je verificatielink.</p>
       </div>
 
       <div v-else-if="success" class="py-8">
-        <div class="mb-4 text-green-600">
-          <svg class="mx-auto h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-3xl bg-green-50 text-green-700">
+          <svg class="h-9 w-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 class="mb-2 text-xl font-semibold">E-mailadres bevestigd</h3>
-        <p class="mb-4 text-gray-600">Je e-mailadres is succesvol bevestigd.</p>
-        <NuxtLink to="/profiel" class="inline-block rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
+        <h1 class="font-display text-3xl font-extrabold text-brand-900">E-mailadres bevestigd</h1>
+        <p class="mt-2 text-sm text-ink/60">Je account is bevestigd en klaar voor gebruik.</p>
+        <NuxtLink to="/profiel" class="btn-primary mt-6 w-full">
           Naar mijn profiel
         </NuxtLink>
       </div>
 
       <div v-else class="py-8">
-        <div class="mb-4 text-red-600">
-          <svg class="mx-auto h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-3xl bg-blush-100 text-blush-500">
+          <svg class="h-9 w-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </div>
-        <h3 class="mb-2 text-xl font-semibold">Bevestigen mislukt</h3>
-        <p class="mb-4 text-gray-600">{{ error }}</p>
-        <NuxtLink to="/login" class="inline-block rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
+        <h1 class="font-display text-3xl font-extrabold text-brand-900">Bevestigen mislukt</h1>
+        <p class="mt-2 text-sm text-ink/60">{{ error }}</p>
+        <NuxtLink to="/login" class="btn-primary mt-6 w-full">
           Naar inloggen
         </NuxtLink>
       </div>

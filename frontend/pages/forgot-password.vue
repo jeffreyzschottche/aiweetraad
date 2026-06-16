@@ -37,7 +37,7 @@
         </button>
       </form>
 
-      <p class="mt-4 text-center text-sm text-gray-600">
+      <p class="mt-4 text-center text-sm text-ink/60">
         <NuxtLink to="/login" class="font-bold text-brand-600 hover:text-brand-700">
           Terug naar inloggen
         </NuxtLink>

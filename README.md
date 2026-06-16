@@ -57,11 +57,24 @@ vraag wordt maar één keer gegenereerd.
 - **Echt aanzetten**: zet in `backend/.env`:
   ```
   AI_GENERATION_ENABLED=true
-  ANTHROPIC_API_KEY=sk-ant-...
+  AI_ALLOW_STUB_FALLBACK=false
+
+  OPENAI_API_KEY=...
+  GEMINI_API_KEY=...
+  ANTHROPIC_API_KEY=...
+  DEEPSEEK_API_KEY=...
+  XAI_API_KEY=...
+
+  AI_OPENAI_CREDIT_USD=25
+  AI_GEMINI_CREDIT_USD=25
+  AI_ANTHROPIC_CREDIT_USD=25
+  AI_DEEPSEEK_CREDIT_USD=25
+  AI_XAI_CREDIT_USD=25
   ```
-  Modellen met provider `claude` gebruiken dan de echte Anthropic API (`ClaudeDriver`). Mislukt een
-  call of ontbreekt de key, dan valt hij netjes terug op de stub. Andere providers (openai/gemini)
-  gebruiken voorlopig ook de stub — voeg een driver toe in `app/Services/AI/`.
+  De provider-router kiest dan per antwoord een provider/model op basis van key, ingestelde credits
+  en geschatte tokenkosten. Als geen provider beschikbaar is, wordt het antwoord `failed` in plaats
+  van stilletjes een nepantwoord te tonen. Offline fallback kan alleen bewust met
+  `AI_ALLOW_STUB_FALLBACK=true`.
 
 Wanneer een bezoeker een **nieuwe** vraag stelt via `/vraag-stellen`, genereert de AI direct en
 wordt het resultaat gecached.
@@ -73,6 +86,29 @@ zonder externe AI-kosten:
 
 ```bash
 php artisan content:refresh-demo
+```
+
+### Echte AI-antwoorden voor bestaande vragen genereren
+
+Gebruik dit om bestaande demo-antwoorden door echte provider-antwoorden te vervangen. Begin altijd
+met een dry-run:
+
+```bash
+php artisan content:generate-ai-answers --dry-run --force
+php artisan content:generate-ai-answers --force
+```
+
+Handig voor één vraag:
+
+```bash
+php artisan content:generate-ai-answers --dry-run --force --question=hoe-val-ik-makkelijker-in-slaap
+php artisan content:generate-ai-answers --force --question=hoe-val-ik-makkelijker-in-slaap
+```
+
+Kosten/failures bekijken:
+
+```bash
+php artisan ai:usage
 ```
 
 ### Antwoorden (her)genereren vanuit tinker

@@ -54,9 +54,6 @@
         Dit antwoord is via een fallback opgehaald.
       </div>
       <p v-for="(para, i) in paragraphs" :key="i" class="whitespace-pre-line">{{ para }}</p>
-      <p v-if="providerLabel" class="mt-4 text-xs font-semibold text-ink/40">
-        Provider: {{ providerLabel }}
-      </p>
     </div>
 
     <footer v-if="status !== 'failed'" class="flex flex-wrap items-center gap-2 border-t border-brand-100/50 px-5 py-3">
@@ -131,13 +128,6 @@ const logoMeta = computed(() => aiLogoMetaFor(props.answer.ai_model));
 const logoSrc = computed(() => aiLogoFor(props.answer.ai_model));
 const status = computed(() => props.answer.status ?? 'completed');
 const statusLabel = computed(() => status.value === 'failed' ? 'Niet beschikbaar' : 'Fallback');
-const providerLabel = computed(() => {
-  if (!props.answer.actual_provider) return '';
-  return props.answer.actual_model
-    ? `${props.answer.actual_provider} · ${props.answer.actual_model}`
-    : props.answer.actual_provider;
-});
-
 function pop(el: HTMLElement | null) {
   if (!$gsap || !el) return;
   $gsap.fromTo(el, { scale: 0.8 }, { scale: 1, duration: 0.45, ease: 'back.out(4)' });

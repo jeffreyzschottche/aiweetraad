@@ -22,6 +22,13 @@ class Answer extends Model
         'estimated_cost_usd' => 'decimal:6',
     ];
 
+    protected $hidden = [
+        'actual_provider',
+        'actual_model',
+        'estimated_cost_usd',
+        'error_message',
+    ];
+
     protected $appends = ['score'];
 
     public function question(): BelongsTo

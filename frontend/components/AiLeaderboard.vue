@@ -90,7 +90,7 @@ function medal(i: number): string {
   return (
     [
       'bg-amber-100 text-amber-600',
-      'bg-slate-100 text-slate-500',
+      'bg-brand-50 text-ink/50',
       'bg-orange-100 text-orange-600',
     ][i] || 'bg-brand-50 text-brand-400'
   );

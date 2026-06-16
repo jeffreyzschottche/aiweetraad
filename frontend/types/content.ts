@@ -13,8 +13,6 @@ export interface AiModel {
   id: number;
   name: string;
   slug: string;
-  provider: string;
-  model_identifier: string | null;
   tagline: string | null;
   accent_color: string;
   logo_url?: string | null;
@@ -34,10 +32,6 @@ export interface Answer {
   is_ai: boolean;
   body: string;
   status?: 'completed' | 'fallback' | 'failed';
-  actual_provider?: string | null;
-  actual_model?: string | null;
-  estimated_cost_usd?: string | number;
-  error_message?: string | null;
   upvotes: number;
   downvotes: number;
   score: number;

@@ -1,7 +1,7 @@
 <template>
   <div class="container-app grid gap-10 py-10 lg:grid-cols-[1fr_300px]">
     <article class="mx-auto w-full max-w-3xl">
-      <h1 class="font-display text-3xl font-extrabold text-slate-900">{{ page.title }}</h1>
+      <h1 class="font-display text-3xl font-extrabold text-brand-900">{{ page.title }}</h1>
       <!-- Content comes from our own trusted seeder/CMS, rendered as HTML. -->
       <div class="prose-content mt-6" v-html="page.body" />
 

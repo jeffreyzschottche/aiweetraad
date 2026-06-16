@@ -1,5 +1,6 @@
 <template>
   <aside
+    v-if="adsEnabled"
     :class="wrapperClass"
     role="complementary"
     aria-label="Advertentie"
@@ -24,6 +25,9 @@ const props = withDefaults(
   defineProps<{ format?: 'leaderboard' | 'in-content' | 'sidebar' }>(),
   { format: 'leaderboard' }
 );
+
+const config = useRuntimeConfig();
+const adsEnabled = computed(() => config.public.adsEnabled === true || config.public.adsEnabled === 'true');
 
 const wrapperClass = computed(() => {
   const base =

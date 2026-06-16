@@ -12,6 +12,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1',
+      adsEnabled: ['1', 'true', 'yes'].includes(
+        (process.env.NUXT_PUBLIC_ADS_ENABLED || 'false').toLowerCase()
+      ),
       siteName: 'AI Weet Raad',
     },
   },

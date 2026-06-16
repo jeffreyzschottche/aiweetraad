@@ -103,9 +103,9 @@
             <article
               v-for="ai in aiProfiles"
               :key="ai.name"
-              class="flex min-h-[220px] flex-col rounded-2xl border border-brand-100 bg-white p-5 shadow-card"
+              class="flex min-h-[220px] min-w-0 flex-col rounded-2xl border border-brand-100 bg-white p-5 shadow-card xl:p-4 2xl:p-5"
             >
-              <div class="flex items-start justify-between gap-3">
+              <div class="flex min-w-0 flex-wrap items-start justify-between gap-3">
                 <span
                   class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl ring-1 ring-black/5"
                   :class="ai.needsWhiteBg ? 'bg-white' : 'bg-transparent'"
@@ -117,7 +117,7 @@
                     :class="ai.needsWhiteBg ? 'p-1' : ''"
                   />
                 </span>
-                <span class="rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-extrabold text-brand-600">
+                <span class="max-w-full rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-extrabold leading-none text-brand-600">
                   {{ ai.role }}
                 </span>
               </div>

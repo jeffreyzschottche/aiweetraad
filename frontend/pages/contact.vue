@@ -72,9 +72,3 @@ async function submit() {
 
 useHead({ title: 'Contact' });
 </script>
-
-<style scoped>
-.input {
-  @apply w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100;
-}
-</style>
