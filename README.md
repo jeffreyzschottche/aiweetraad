@@ -46,6 +46,46 @@ npm run dev                  # http://localhost:3000
 
 Testaccount na seeden: `test@example.com` (wachtwoord via wachtwoord-reset of pas de seeder aan).
 
+## Deploy met Coolify
+
+Maak in Coolify twee losse applicaties vanuit dezelfde repository.
+
+### Frontend
+
+- Build pack: `Dockerfile`
+- Base directory / build directory: `frontend`
+- Dockerfile: `Dockerfile`
+- Port: `3000`
+- Belangrijkste env:
+  ```
+  NUXT_PUBLIC_API_BASE_URL=https://jouw-api-domein.nl/api/v1
+  NUXT_PUBLIC_ADS_ENABLED=false
+  ```
+
+### Backend
+
+- Build pack: `Dockerfile`
+- Base directory / build directory: `backend`
+- Dockerfile: `Dockerfile`
+- Port: `8000`
+- Belangrijkste env:
+  ```
+  APP_ENV=production
+  APP_DEBUG=false
+  APP_URL=https://jouw-api-domein.nl
+  FRONTEND_URL=https://jouw-frontend-domein.nl
+  SANCTUM_STATEFUL_DOMAINS=jouw-frontend-domein.nl
+  APP_KEY=base64:...
+  ```
+
+Gebruik voor productie bij voorkeur een externe database via Coolify env-vars. Als je SQLite gebruikt,
+zet dan een persistent volume op `/var/www/html/database` en voer na de eerste deploy uit:
+
+```bash
+php artisan migrate --force
+php artisan content:refresh-demo
+```
+
 ## Hoe de AI-antwoorden werken
 
 Elke vraag krijgt één antwoord per ingeschakeld AI-model (zie `ai_models`-tabel: ChatGPT, Claude,
