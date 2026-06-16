@@ -57,7 +57,7 @@
         </div>
 
         <div
-          class="grid gap-2 rounded-3xl border border-brand-100 bg-white p-2 shadow-card sm:grid-cols-2 xl:grid-cols-4"
+          class="grid gap-2 rounded-3xl border border-brand-100 bg-white p-2 shadow-card sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
           role="tablist"
           aria-label="AI-antwoorden"
         >
@@ -75,14 +75,14 @@
           >
             <span
               class="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold text-white"
-              :style="{ backgroundColor: answer.ai_model?.accent_color || '#006A6C' }"
+              :style="logoBubbleStyle(answer)"
             >
               <img
                 v-if="aiLogo(answer) && !failedLogos[answer.id]"
                 :src="aiLogo(answer)"
                 :alt="`${answer.ai_model.name} logo`"
                 class="h-8 w-8 rounded-full object-contain"
-                :class="aiLogoMeta(answer)?.needsWhiteBg ? 'bg-white p-1 ring-1 ring-black/5' : ''"
+                :class="logoImageClass(answer)"
                 loading="lazy"
                 @error="failedLogos[answer.id] = true"
               />
@@ -143,7 +143,7 @@
                     :src="aiLogo(answer)"
                     :alt="`${answer.ai_model?.name || 'AI'} logo`"
                     class="h-7 w-7 rounded-full object-contain"
-                    :class="aiLogoMeta(answer)?.needsWhiteBg ? 'bg-white p-1 ring-1 ring-black/5' : ''"
+                    :class="logoImageClass(answer)"
                     loading="lazy"
                     @error="failedLogos[`compare-${answer.id}`] = true"
                   />
@@ -266,6 +266,34 @@ function aiLogo(answer: Answer): string | null {
 
 function aiLogoMeta(answer: Answer) {
   return aiLogoMetaFor(answer.ai_model);
+}
+
+function isDeepSeek(answer: Answer): boolean {
+  const slug = answer.ai_model?.slug?.toLowerCase() || '';
+  const name = answer.ai_model?.name?.toLowerCase() || '';
+
+  return slug.includes('deepseek') || name.includes('deepseek');
+}
+
+function logoBubbleStyle(answer: Answer): Record<string, string> {
+  if (isDeepSeek(answer)) {
+    return {
+      backgroundColor: '#e8e5ff',
+      color: '#5364f5',
+    };
+  }
+
+  return {
+    backgroundColor: answer.ai_model?.accent_color || '#006A6C',
+  };
+}
+
+function logoImageClass(answer: Answer): string {
+  if (isDeepSeek(answer)) {
+    return 'p-1';
+  }
+
+  return aiLogoMeta(answer)?.needsWhiteBg ? 'bg-white p-1 ring-1 ring-black/5' : '';
 }
 
 function updateAnswerVotes(answerId: number, payload: { upvotes: number; downvotes: number; my_vote: number }) {
