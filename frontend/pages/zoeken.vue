@@ -62,5 +62,31 @@ onMounted(() => {
   if (q.value) search();
 });
 
-useHead({ title: 'Zoeken' });
+usePageSeo(() => ({
+  title: lastQuery.value ? `Zoeken naar ${lastQuery.value}` : 'Zoeken',
+  description: lastQuery.value
+    ? `Zoekresultaten voor ${lastQuery.value} op AI Weet Raad.`
+    : 'Zoek in praktische vragen en AI-antwoorden op AI Weet Raad.',
+  path: '/zoeken',
+}));
+
+const { absoluteUrl } = useSiteIdentity();
+
+useJsonLd('search-page', () => ({
+  '@context': 'https://schema.org',
+  '@type': 'SearchResultsPage',
+  '@id': `${absoluteUrl('/zoeken')}#webpage`,
+  url: absoluteUrl('/zoeken'),
+  name: lastQuery.value ? `Zoeken naar ${lastQuery.value}` : 'Zoeken',
+  description: 'Zoek in praktische vragen en AI-antwoorden.',
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: results.value.map((question, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: question.title,
+      url: absoluteUrl(`/vraag/${question.slug}`),
+    })),
+  },
+}));
 </script>

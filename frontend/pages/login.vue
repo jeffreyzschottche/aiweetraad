@@ -78,6 +78,13 @@ const form = reactive({
 const error = ref('');
 const loading = ref(false);
 
+usePageSeo({
+  title: 'Inloggen',
+  description: 'Log in op AI Weet Raad om vragen te stellen en te stemmen op antwoorden.',
+  path: '/login',
+  noindex: true,
+});
+
 async function handleLogin() {
   error.value = '';
   loading.value = true;

@@ -59,6 +59,13 @@ const error = ref('');
 const success = ref('');
 const loading = ref(false);
 
+usePageSeo({
+  title: 'Wachtwoord vergeten',
+  description: 'Vraag een resetlink aan voor je AI Weet Raad-account.',
+  path: '/forgot-password',
+  noindex: true,
+});
+
 async function handleSubmit() {
   error.value = '';
   success.value = '';

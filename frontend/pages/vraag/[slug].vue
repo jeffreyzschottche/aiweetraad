@@ -57,7 +57,7 @@
         </div>
 
         <div
-          class="grid gap-2 rounded-3xl border border-brand-100 bg-white p-2 shadow-card sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+          class="grid gap-3 rounded-3xl border border-brand-100 bg-white p-3 shadow-card sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
           role="tablist"
           aria-label="AI-antwoorden"
         >
@@ -67,21 +67,21 @@
             type="button"
             role="tab"
             :aria-selected="activeAnswerId === answer.id"
-            class="group flex min-h-[88px] items-center gap-3 rounded-2xl border-2 p-3 text-left transition"
+            class="group flex min-h-[108px] items-center gap-4 rounded-2xl border-2 p-4 text-left transition"
             :class="activeAnswerId === answer.id
               ? 'border-brand-500 bg-brand-50 shadow-card'
               : 'border-transparent hover:border-brand-100 hover:bg-brand-50/60'"
             @click="activeAnswerId = answer.id"
           >
             <span
-              class="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold text-white"
+              class="grid h-12 w-12 shrink-0 place-items-center rounded-full text-sm font-bold text-white"
               :style="logoBubbleStyle(answer)"
             >
               <img
                 v-if="aiLogo(answer) && !failedLogos[answer.id]"
                 :src="aiLogo(answer)"
                 :alt="`${answer.ai_model.name} logo`"
-                class="h-8 w-8 rounded-full object-contain"
+                class="h-9 w-9 rounded-full object-contain"
                 :class="logoImageClass(answer)"
                 loading="lazy"
                 @error="failedLogos[answer.id] = true"
@@ -89,7 +89,7 @@
               <span v-else>{{ initials(answer) }}</span>
             </span>
             <span class="min-w-0 flex-1">
-              <span class="block truncate text-sm font-extrabold text-brand-900">
+              <span class="block whitespace-nowrap text-base font-extrabold leading-tight text-brand-900">
                 {{ answer.ai_model?.name || 'AI' }}
               </span>
               <span class="mt-1 flex flex-wrap items-center gap-1.5">
@@ -107,7 +107,7 @@
                 >
                   fallback
                 </span>
-                <span class="text-[11px] font-semibold text-ink/45">
+                <span class="whitespace-nowrap text-[11px] font-semibold text-ink/45">
                   {{ answer.upvotes }} werkt
                 </span>
               </span>
@@ -205,6 +205,7 @@ import type { Answer, Question } from '~/types/content';
 const route = useRoute();
 const api = useApi();
 const { aiLogoFor, aiLogoMetaFor } = useAiLogo();
+const { absoluteUrl, siteUrl } = useSiteIdentity();
 const slug = computed(() => route.params.slug as string);
 
 const { data } = await useAsyncData(`question-${slug.value}`, () =>
@@ -225,6 +226,9 @@ const topAnswer = computed(() =>
   answers.value.length
     ? [...answers.value].sort((a, b) => score(b) - score(a))[0]
     : null
+);
+const completedAnswers = computed(() =>
+  answers.value.filter((answer) => (answer.status ?? 'completed') !== 'failed' && answer.body)
 );
 
 watch(
@@ -305,7 +309,100 @@ function updateAnswerVotes(answerId: number, payload: { upvotes: number; downvot
   answer.score = payload.upvotes - payload.downvotes;
 }
 
-useHead(() => ({
+const pageDescription = computed(() =>
+  textExcerpt(question.value?.body || topAnswer.value?.body || question.value?.title)
+);
+
+usePageSeo(() => ({
   title: question.value?.title || 'Vraag',
+  description: pageDescription.value,
+  path: `/vraag/${slug.value}`,
+  type: 'article',
 }));
+
+useJsonLd('question-page', () => {
+  if (!question.value) return null;
+
+  const url = absoluteUrl(`/vraag/${question.value.slug}`);
+  const breadcrumbItems = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: siteUrl,
+    },
+  ];
+
+  if (question.value.category) {
+    breadcrumbItems.push({
+      '@type': 'ListItem',
+      position: 2,
+      name: question.value.category.name,
+      item: absoluteUrl(`/categorie/${question.value.category.slug}`),
+    });
+  }
+
+  breadcrumbItems.push({
+    '@type': 'ListItem',
+    position: breadcrumbItems.length + 1,
+    name: question.value.title,
+    item: url,
+  });
+
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems,
+  };
+
+  if (!completedAnswers.value.length) {
+    return [
+      breadcrumb,
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        '@id': `${url}#webpage`,
+        url,
+        name: question.value.title,
+        description: pageDescription.value,
+      },
+    ];
+  }
+
+  const sortedAnswers = [...completedAnswers.value].sort((a, b) => score(b) - score(a));
+  const [accepted, ...suggested] = sortedAnswers;
+  const answerJson = (answer: Answer) => ({
+    '@type': 'Answer',
+    text: textExcerpt(answer.body, 5000),
+    upvoteCount: Math.max(answer.upvotes, 0),
+    datePublished: question.value?.created_at,
+    author: {
+      '@type': 'Organization',
+      name: answer.ai_model?.name || 'AI-assistent',
+    },
+  });
+
+  return [
+    breadcrumb,
+    {
+      '@context': 'https://schema.org',
+      '@type': 'QAPage',
+      '@id': `${url}#qapage`,
+      mainEntity: {
+        '@type': 'Question',
+        name: question.value.title,
+        text: question.value.body || question.value.title,
+        answerCount: completedAnswers.value.length,
+        upvoteCount: completedAnswers.value.reduce((total, answer) => total + Math.max(answer.upvotes, 0), 0),
+        datePublished: question.value.created_at,
+        author: {
+          '@type': 'Organization',
+          name: 'AI Weet Raad community',
+        },
+        acceptedAnswer: answerJson(accepted),
+        suggestedAnswer: suggested.map(answerJson),
+      },
+    },
+  ];
+});
 </script>

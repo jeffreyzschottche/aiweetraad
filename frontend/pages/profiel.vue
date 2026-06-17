@@ -174,5 +174,10 @@ async function handleLogout() {
   }
 }
 
-useHead({ title: 'Mijn profiel' });
+usePageSeo({
+  title: 'Mijn profiel',
+  description: 'Bekijk je eigen vragen en stemmen op AI Weet Raad.',
+  path: '/profiel',
+  noindex: true,
+});
 </script>

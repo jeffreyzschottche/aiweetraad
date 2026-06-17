@@ -95,6 +95,13 @@ const error = ref('');
 const success = ref('');
 const loading = ref(false);
 
+usePageSeo({
+  title: 'Nieuw wachtwoord',
+  description: 'Kies een nieuw wachtwoord voor je AI Weet Raad-account.',
+  path: '/reset-password',
+  noindex: true,
+});
+
 async function handleSubmit() {
   if (!form.token) return;
 

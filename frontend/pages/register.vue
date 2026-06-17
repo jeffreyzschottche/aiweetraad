@@ -97,6 +97,13 @@ const form = reactive({
 const error = ref('');
 const loading = ref(false);
 
+usePageSeo({
+  title: 'Account aanmaken',
+  description: 'Maak een account aan om vragen te stellen en te stemmen op AI-antwoorden.',
+  path: '/register',
+  noindex: true,
+});
+
 async function handleRegister() {
   error.value = '';
   loading.value = true;

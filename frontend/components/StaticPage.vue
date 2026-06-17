@@ -23,6 +23,8 @@ import type { Page } from '~/types/content';
 
 const props = defineProps<{ slug: string }>();
 const api = useApi();
+const route = useRoute();
+const { absoluteUrl, siteName, siteUrl } = useSiteIdentity();
 
 const { data } = await useAsyncData(`page-${props.slug}`, () =>
   api.get<{ data: Page }>(`/pages/${props.slug}`).catch(() => null)
@@ -105,10 +107,27 @@ const adOptions = [
   { title: 'Sidebar', copy: 'Grote positie naast categorie- en vraagpagina’s.' },
 ];
 
-useHead(() => ({
+usePageSeo(() => ({
   title: page.value.title,
-  meta: page.value.meta_description
-    ? [{ name: 'description', content: page.value.meta_description }]
-    : [],
+  description: page.value.meta_description || textExcerpt(page.value.body),
+  type: 'article',
 }));
+
+useJsonLd('static-page', () => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': props.slug === 'over-ons' ? 'AboutPage' : 'WebPage',
+    '@id': `${absoluteUrl(route.path)}#webpage`,
+    url: absoluteUrl(route.path),
+    name: page.value.title,
+    description: page.value.meta_description || textExcerpt(page.value.body),
+    isPartOf: {
+      '@id': `${siteUrl}/#website`,
+    },
+    publisher: {
+      '@id': `${siteUrl}/#organization`,
+      name: siteName,
+    },
+  };
+});
 </script>

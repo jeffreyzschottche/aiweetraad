@@ -63,8 +63,8 @@
               <img
                 :src="ai.logo"
                 :alt="`${ai.name} logo`"
-                class="h-10 w-10 rounded-full object-contain"
-                :class="ai.needsWhiteBg ? 'p-1' : ''"
+                class="rounded-full object-contain"
+                :class="aiLogoClass(ai, 'hero')"
               />
             </span>
             <span class="text-xs font-extrabold text-brand-700">{{ ai.name }}</span>
@@ -113,8 +113,8 @@
                   <img
                     :src="ai.logo"
                     :alt="`${ai.name} logo`"
-                    class="h-10 w-10 rounded-xl object-contain"
-                    :class="ai.needsWhiteBg ? 'p-1' : ''"
+                    class="rounded-xl object-contain"
+                    :class="aiLogoClass(ai, 'card')"
                   />
                 </span>
                 <span class="max-w-full rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-extrabold leading-none text-brand-600">
@@ -176,9 +176,18 @@ interface HomePayload {
   stats: { questions: number; answers: number; categories: number };
 }
 
+interface AiProfile {
+  name: string;
+  role: string;
+  logo: string;
+  needsWhiteBg: boolean;
+  copy: string;
+}
+
 const api = useApi();
 const router = useRouter();
 const { $gsap } = useNuxtApp();
+const { absoluteUrl, siteUrl } = useSiteIdentity();
 const quickQuestion = ref('');
 
 const { data: home } = await useAsyncData('home', () => api.get<HomePayload>('/home'));
@@ -210,7 +219,7 @@ const statBlocks = computed(() => [
   { label: 'Categorieën', value: home.value?.stats.categories ?? 0 },
 ]);
 
-const aiProfiles = [
+const aiProfiles: AiProfile[] = [
   {
     name: 'ChatGPT',
     role: 'Structuur',
@@ -247,6 +256,34 @@ const aiProfiles = [
     copy: 'Sterk in logisch redeneren, alternatieven afwegen en compacte analyses bij praktische vragen.',
   },
 ];
+
+function aiLogoClass(ai: AiProfile, placement: 'hero' | 'card'): string {
+  if (ai.name === 'ChatGPT') {
+    return placement === 'hero' ? 'h-11 w-11 p-2' : 'h-11 w-11 p-2';
+  }
+
+  return ai.needsWhiteBg ? 'h-10 w-10 p-1' : 'h-10 w-10';
+}
+
+usePageSeo({
+  title: 'Stel je vraag aan meerdere AI’s tegelijk',
+  description:
+    'Stel één praktische vraag en vergelijk antwoorden van ChatGPT, Claude, Gemini, Grok en DeepSeek. Stem op het advies dat jou het beste helpt.',
+  path: '/',
+});
+
+useJsonLd('home-page', () => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${siteUrl}/#webpage`,
+    url: siteUrl,
+    name: 'AI Weet Raad',
+    description:
+      'Stel één praktische vraag en vergelijk antwoorden van meerdere AI-assistenten.',
+    primaryImageOfPage: absoluteUrl('/images/aiweetraadlogo.png'),
+  };
+});
 
 const badge = ref();
 const hero = ref<HTMLElement | null>(null);

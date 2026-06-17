@@ -58,6 +58,7 @@ import type { Category, Paginated, Question } from '~/types/content';
 
 const route = useRoute();
 const api = useApi();
+const { absoluteUrl, siteUrl } = useSiteIdentity();
 const slug = computed(() => route.params.slug as string);
 
 const { data } = await useAsyncData(`category-${slug.value}`, () =>
@@ -85,5 +86,61 @@ function tint(hex: string): string {
   return `rgba(${parseInt(h.substring(0, 2), 16)}, ${parseInt(h.substring(2, 4), 16)}, ${parseInt(h.substring(4, 6), 16)}, 0.12)`;
 }
 
-useHead(() => ({ title: category.value?.name || 'Categorie' }));
+usePageSeo(() => ({
+  title: category.value ? `${category.value.name} vragen` : 'Categorie',
+  description:
+    category.value?.description ||
+    `Bekijk praktische vragen en AI-antwoorden in de categorie ${category.value?.name || 'AI Weet Raad'}.`,
+  path: `/categorie/${slug.value}`,
+}));
+
+useJsonLd('category-page', () => {
+  if (!category.value) return null;
+
+  const url = absoluteUrl(`/categorie/${category.value.slug}`);
+
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: siteUrl,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Categorieën',
+          item: absoluteUrl('/categorieen'),
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: category.value.name,
+          item: url,
+        },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      '@id': `${url}#collection`,
+      url,
+      name: category.value.name,
+      description: category.value.description || `Vragen in de categorie ${category.value.name}.`,
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: questions.value.map((question, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: question.title,
+          url: absoluteUrl(`/vraag/${question.slug}`),
+        })),
+      },
+    },
+  ];
+});
 </script>

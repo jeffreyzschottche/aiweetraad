@@ -53,6 +53,13 @@ const loading = ref(true);
 const success = ref(false);
 const error = ref('');
 
+usePageSeo({
+  title: 'E-mailadres bevestigen',
+  description: 'Bevestig je AI Weet Raad-account.',
+  path: '/verify-email',
+  noindex: true,
+});
+
 onMounted(async () => {
   const verificationUrl = route.query.url as string;
 

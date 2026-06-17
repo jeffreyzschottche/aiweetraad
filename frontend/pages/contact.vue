@@ -70,5 +70,20 @@ async function submit() {
   }
 }
 
-useHead({ title: 'Contact' });
+usePageSeo({
+  title: 'Contact',
+  description: 'Neem contact op met AI Weet Raad voor vragen, opmerkingen of advertentiemogelijkheden.',
+  path: '/contact',
+});
+
+const { absoluteUrl } = useSiteIdentity();
+
+useJsonLd('contact-page', () => ({
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  '@id': `${absoluteUrl('/contact')}#webpage`,
+  url: absoluteUrl('/contact'),
+  name: 'Contact',
+  description: 'Neem contact op met AI Weet Raad.',
+}));
 </script>

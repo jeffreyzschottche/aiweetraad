@@ -15,8 +15,33 @@
 import type { Category } from '~/types/content';
 
 const api = useApi();
+const { absoluteUrl } = useSiteIdentity();
 const { data } = await useAsyncData('categories', () => api.get<{ data: Category[] }>('/categories'));
 const categories = computed(() => data.value?.data ?? []);
 
-useHead({ title: 'Categorieën' });
+usePageSeo({
+  title: 'Alle categorieën',
+  description: 'Blader door alle AI Weet Raad categorieën en vind praktische vragen en antwoorden per onderwerp.',
+  path: '/categorieen',
+});
+
+useJsonLd('categories-page', () => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': `${absoluteUrl('/categorieen')}#collection`,
+    url: absoluteUrl('/categorieen'),
+    name: 'Alle categorieën',
+    description: 'Alle onderwerpen met praktische vragen en AI-antwoorden.',
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: categories.value.map((category, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: category.name,
+        url: absoluteUrl(`/categorie/${category.slug}`),
+      })),
+    },
+  };
+});
 </script>

@@ -8,9 +8,11 @@
     <div class="container-app grid gap-10 pt-16 pb-12 md:grid-cols-4">
       <div>
         <div class="flex items-center gap-2.5">
-          <span class="grid h-10 w-10 place-items-center rounded-2xl bg-white text-brand-700">
-            <span class="font-display text-lg font-bold">ai</span>
-          </span>
+          <img
+            src="/images/aiweetraadlogo.png"
+            alt="AI Weet Raad logo"
+            class="h-10 w-10 rounded-2xl object-cover shadow-soft"
+          />
           <span class="font-display text-lg font-bold">AI weet raad</span>
         </div>
         <p class="mt-3 max-w-xs text-sm text-white/70">
@@ -48,7 +50,17 @@
     <div class="border-t border-white/10 py-5">
       <div class="container-app flex flex-col items-center justify-between gap-2 text-xs text-white/50 sm:flex-row">
         <p>© {{ year }} AI weet raad. Antwoorden gegenereerd door AI — gebruik op eigen inzicht.</p>
-        <p>Gemaakt met Nuxt &amp; Laravel.</p>
+        <p>
+          Gemaakt met ❤️ door
+          <a
+            href="https://zschotmedia.nl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="font-bold text-white/70 transition hover:text-blush-300"
+          >
+            ZschotMedia
+          </a>
+        </p>
       </div>
     </div>
   </footer>

@@ -39,5 +39,20 @@ const steps = [
   'Like of dislike het advies dat het beste werkt.',
 ];
 
-useHead({ title: 'Stel je vraag' });
+usePageSeo(() => ({
+  title: initialTitle.value ? `Stel je vraag: ${initialTitle.value}` : 'Stel je vraag',
+  description: 'Stel je vraag aan meerdere AI’s tegelijk en vergelijk direct de antwoorden.',
+  path: '/vraag-stellen',
+}));
+
+const { absoluteUrl } = useSiteIdentity();
+
+useJsonLd('ask-page', () => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${absoluteUrl('/vraag-stellen')}#webpage`,
+  url: absoluteUrl('/vraag-stellen'),
+  name: 'Stel je vraag',
+  description: 'Stel een praktische vraag aan meerdere AI-assistenten tegelijk.',
+}));
 </script>
