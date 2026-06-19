@@ -24,9 +24,8 @@
       </div>
       <div class="flex shrink-0 items-center gap-2">
         <span
-          v-if="status !== 'completed'"
-          class="rounded-full px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide"
-          :class="status === 'failed' ? 'bg-blush-100 text-blush-500' : 'bg-amber-100 text-amber-700'"
+          v-if="status === 'failed'"
+          class="rounded-full bg-blush-100 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-blush-500"
         >
           {{ statusLabel }}
         </span>
@@ -47,13 +46,7 @@
       >
         Deze AI is tijdelijk niet beschikbaar. Er is geen nepantwoord geplaatst.
       </div>
-      <div
-        v-else-if="status === 'fallback'"
-        class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800"
-      >
-        Dit antwoord is via een fallback opgehaald.
-      </div>
-      <p v-for="(para, i) in paragraphs" :key="i" class="whitespace-pre-line">{{ para }}</p>
+      <div class="answer-markdown" v-html="renderedBody" />
     </div>
 
     <footer v-if="status !== 'failed'" class="flex flex-wrap items-center gap-2 border-t border-brand-100/50 px-5 py-3">
@@ -100,6 +93,7 @@
 
 <script setup lang="ts">
 import type { Answer } from '~/types/content';
+import { renderMarkdown } from '~/utils/renderMarkdown';
 
 const props = defineProps<{ answer: Answer }>();
 const emit = defineEmits<{
@@ -122,7 +116,7 @@ const upBtn = ref<HTMLElement | null>(null);
 const downBtn = ref<HTMLElement | null>(null);
 
 const score = computed(() => upvotes.value - downvotes.value);
-const paragraphs = computed(() => props.answer.body.split(/\n\n+/).filter(Boolean));
+const renderedBody = computed(() => renderMarkdown(props.answer.body));
 const initials = computed(() => (props.answer.ai_model?.name || 'AI').slice(0, 2));
 const logoMeta = computed(() => aiLogoMetaFor(props.answer.ai_model));
 const logoSrc = computed(() => aiLogoFor(props.answer.ai_model));

@@ -96,7 +96,7 @@ class QuestionSeeder extends Seeder
             'Hoe voorkom ik luchtbellen bij epoxy?',
             'Hoe organiseer ik mijn hobbyspullen zonder veel ruimte?',
         ],
-        'omas-oudste-trucjes' => [
+        'ai-trucjes' => [
             'Welke oude truc helpt tegen zilver dat zwart is geworden?',
             'Hoe laat ik mijn huis snel fris ruiken zonder parfum?',
             'Hoe maak ik een verstopte afvoer op een milde manier vrij?',
@@ -165,7 +165,7 @@ class QuestionSeeder extends Seeder
             'vervoer-auto' => 'Ik zoek een veilige, praktische aanpak die geen schade aan auto, lak, ruiten of onderdelen geeft.',
             'werk-en-inkomen' => 'Ik wil dit overzichtelijk aanpakken met concrete stappen en zonder belangrijke details te missen.',
             'hobby' => 'Ik ben geen expert en wil klein beginnen met materiaal dat betaalbaar en overzichtelijk blijft.',
-            'omas-oudste-trucjes' => 'Ik wil weten of een ouderwetse huis-tuin-en-keukenmethode veilig en zinvol is.',
+            'ai-trucjes' => 'Ik wil weten of een slimme huis-tuin-en-keukenmethode veilig en zinvol is.',
             'duurzaamheid' => 'Ik wil een haalbare duurzame stap die weinig kost en in het dagelijks leven vol te houden is.',
             'diversen' => 'Ik zoek een simpele oplossing die ik meteen thuis kan proberen.',
         ];

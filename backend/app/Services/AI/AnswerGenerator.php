@@ -31,36 +31,44 @@ class AnswerGenerator
         $created = [];
 
         foreach ($models as $model) {
-            $existing = Answer::where('question_id', $question->id)
-                ->where('ai_model_id', $model->id)
-                ->first();
-
-            if ($existing && ! $force) {
-                continue;
+            $answer = $this->generateForQuestionModel($question, $model, $force);
+            if ($answer) {
+                $created[] = $answer;
             }
-
-            if ($existing && $force) {
-                $existing->delete();
-            }
-
-            $generated = $this->generateAnswerData($question, $model);
-
-            $created[] = Answer::create([
-                'question_id' => $question->id,
-                'ai_model_id' => $model->id,
-                'is_ai' => true,
-                'body' => $generated['body'],
-                'status' => $generated['status'],
-                'actual_provider' => $generated['actual_provider'],
-                'actual_model' => $generated['actual_model'],
-                'estimated_cost_usd' => $generated['estimated_cost_usd'],
-                'error_message' => $generated['error_message'],
-            ]);
         }
 
         $question->forceFill(['answers_generated' => true])->save();
 
         return $created;
+    }
+
+    public function generateForQuestionModel(Question $question, AiModel $model, bool $force = false): ?Answer
+    {
+        $existing = Answer::where('question_id', $question->id)
+            ->where('ai_model_id', $model->id)
+            ->first();
+
+        if ($existing && ! $force) {
+            return null;
+        }
+
+        if ($existing && $force) {
+            $existing->delete();
+        }
+
+        $generated = $this->generateAnswerData($question, $model);
+
+        return Answer::create([
+            'question_id' => $question->id,
+            'ai_model_id' => $model->id,
+            'is_ai' => true,
+            'body' => $generated['body'],
+            'status' => $generated['status'],
+            'actual_provider' => $generated['actual_provider'],
+            'actual_model' => $generated['actual_model'],
+            'estimated_cost_usd' => $generated['estimated_cost_usd'],
+            'error_message' => $generated['error_message'],
+        ]);
     }
 
     private function generateAnswerData(Question $question, AiModel $model): array
@@ -81,6 +89,7 @@ class AnswerGenerator
                 $runtimeModel->forceFill([
                     'provider' => $candidate['provider'],
                     'model_identifier' => $candidate['model'],
+                    'system_prompt' => $this->systemPromptForCandidate($model, $candidate),
                 ]);
 
                 $body = $this->driverFor($candidate['provider'])->generate($question, $runtimeModel);
@@ -123,13 +132,32 @@ class AnswerGenerator
         }
 
         return [
-            'body' => 'Deze AI kon nu geen antwoord geven. Probeer het later opnieuw.',
+            'body' => 'Sorry, het is nu te druk om dit AI-antwoord te maken. Probeer je aanvraag later opnieuw.',
             'status' => 'failed',
             'actual_provider' => null,
             'actual_model' => null,
             'estimated_cost_usd' => 0,
             'error_message' => $message,
         ];
+    }
+
+    private function systemPromptForCandidate(AiModel $requestedModel, array $candidate): string
+    {
+        $basePrompt = $requestedModel->system_prompt
+            ?: 'Je bent een behulpzame Nederlandse adviseur. Geef een kort, praktisch en stapsgewijs antwoord.';
+
+        if (! ($candidate['is_fallback'] ?? false)) {
+            return $basePrompt;
+        }
+
+        $requestedName = $requestedModel->name ?: $requestedModel->slug;
+        $technicalProvider = $candidate['provider'];
+
+        return trim($basePrompt . "\n\n" . implode(' ', [
+            "Je draait technisch via {$technicalProvider}, maar dit antwoord wordt getoond onder de AI-tab {$requestedName}.",
+            "Volg daarom het profiel, de toon en de antwoordstijl van {$requestedName}.",
+            "Noem niet dat je een fallback-provider bent en noem geen interne providerroutering.",
+        ]));
     }
 
     private function driverFor(string $provider): AnswerDriver

@@ -8,6 +8,10 @@ use App\Models\Question;
 
 class ProviderSelector
 {
+    public function __construct(private ProviderAccountStatusService $accounts)
+    {
+    }
+
     public function candidatesFor(AiModel $model, Question $question): array
     {
         if (! config('ai.generation_enabled')) {
@@ -47,16 +51,18 @@ class ProviderSelector
                 continue;
             }
 
+            if (! $this->accounts->usableForRouting($provider)) {
+                continue;
+            }
+
             foreach ($this->orderedModels($config['models'], $model, $provider) as $candidateModel) {
                 $cost = $this->estimateCost($candidateModel, $inputTokens, $outputTokens);
-                if ($this->hasBudget($provider, $cost)) {
-                    $candidates[] = [
-                        'provider' => $provider,
-                        'model' => $candidateModel['model'],
-                        'estimated_cost_usd' => $cost,
-                        'is_fallback' => $provider !== $model->provider,
-                    ];
-                }
+                $candidates[] = [
+                    'provider' => $provider,
+                    'model' => $candidateModel['model'],
+                    'estimated_cost_usd' => $cost,
+                    'is_fallback' => $provider !== $model->provider,
+                ];
             }
         }
 
@@ -92,19 +98,6 @@ class ProviderSelector
         });
 
         return $models;
-    }
-
-    private function hasBudget(string $provider, float $estimatedCostUsd): bool
-    {
-        $credit = (float) config("ai.providers.$provider.credit_usd", 0);
-        if ($credit <= 0) {
-            return false;
-        }
-
-        $spent = (float) config("ai.providers.$provider.spent_today_usd", 0)
-            + AiProviderUsage::spentToday($provider);
-
-        return ($spent + $estimatedCostUsd) <= $credit;
     }
 
     private function estimateCost(array $model, int $inputTokens, int $outputTokens): float

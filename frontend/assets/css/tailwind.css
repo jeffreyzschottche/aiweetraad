@@ -42,11 +42,30 @@
   .prose-content :where(h2) {
     @apply mt-7 mb-2 font-display text-xl font-bold text-brand-800;
   }
+  .prose-content :where(h3) {
+    @apply mt-5 mb-2 font-display text-lg font-bold text-brand-800;
+  }
+  .prose-content :where(h4) {
+    @apply mt-4 mb-2 text-base font-extrabold text-brand-800;
+  }
   .prose-content :where(p) {
     @apply mb-4 leading-relaxed text-ink/80;
   }
-  .prose-content :where(ul) {
+  .prose-content :where(ul),
+  .prose-content :where(ol) {
     @apply mb-4 list-disc space-y-1.5 pl-5 text-ink/80;
+  }
+  .prose-content :where(ol) {
+    @apply list-decimal;
+  }
+  .prose-content :where(li) {
+    @apply leading-relaxed;
+  }
+  .prose-content :where(strong) {
+    @apply font-extrabold text-brand-900;
+  }
+  .prose-content :where(em) {
+    @apply text-ink/70;
   }
   .prose-content :where(a) {
     @apply font-semibold text-brand-600 underline decoration-blush-300 decoration-2 underline-offset-2 hover:text-brand-700;

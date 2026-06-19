@@ -100,24 +100,31 @@ vraag wordt maar één keer gegenereerd.
   AI_ALLOW_STUB_FALLBACK=false
 
   OPENAI_API_KEY=...
+  OPENAI_ADMIN_KEY=... # optioneel, alleen voor OpenAI admin-kostenrapportage
   GEMINI_API_KEY=...
   ANTHROPIC_API_KEY=...
   DEEPSEEK_API_KEY=...
   XAI_API_KEY=...
 
-  AI_OPENAI_CREDIT_USD=25
-  AI_GEMINI_CREDIT_USD=25
-  AI_ANTHROPIC_CREDIT_USD=25
-  AI_DEEPSEEK_CREDIT_USD=25
-  AI_XAI_CREDIT_USD=25
+  OPENAI_DEFAULT_MODEL=gpt-5.4-mini
+  OPENAI_FALLBACK_MODEL=gpt-5.4
+  GEMINI_DEFAULT_MODEL=gemini-2.5-flash
+  GEMINI_FALLBACK_MODEL=gemini-2.5-flash-lite
+  ANTHROPIC_DEFAULT_MODEL=claude-sonnet-4-6
+  ANTHROPIC_FALLBACK_MODEL=claude-haiku-4-5
+  DEEPSEEK_DEFAULT_MODEL=deepseek-chat
+  DEEPSEEK_FALLBACK_MODEL=deepseek-reasoner
+  XAI_DEFAULT_MODEL=grok-4.3
 
   AI_BUDGET_ALERTS_ENABLED=true
   AI_ADMIN_EMAIL=admin@jouwdomein.nl
   AI_BUDGET_ALERT_THROTTLE_MINUTES=60
   ```
-  De provider-router kiest dan per antwoord een provider/model op basis van key, ingestelde credits
-  en geschatte tokenkosten. Als geen provider beschikbaar is, wordt het antwoord `failed` in plaats
-  van stilletjes een nepantwoord te tonen. Offline fallback kan alleen bewust met
+  De provider-router kiest dan per antwoord een provider/model op basis van beschikbare keys en
+  providerstatus. DeepSeek-saldo wordt live opgehaald; OpenAI admin-kosten kunnen worden opgehaald
+  met `OPENAI_ADMIN_KEY`, maar gewone OpenAI project API keys geven geen live saldo terug. De app
+  houdt daarnaast lokale geschatte spend bij in `ai_provider_usages`. Als geen provider beschikbaar
+  is, wordt het antwoord `failed` in plaats van stilletjes een nepantwoord te tonen. Offline fallback kan alleen bewust met
   `AI_ALLOW_STUB_FALLBACK=true`. Als `AI_ADMIN_EMAIL` is gevuld, stuurt de backend maximaal één
   alert per throttle-window wanneer er geen bruikbare provider over is of wanneer alle providers falen.
 
@@ -171,6 +178,17 @@ Wil je direct AI-antwoorden laten genereren voor de geimporteerde vragen:
 ```bash
 php artisan content:import-oma --limit=100 --pages=10 --generate-ai
 ```
+
+Voor bulk-imports kun je OpenAI Batch gebruiken. Dat is goedkoper, maar async: je start de batch,
+wacht tot OpenAI klaar is, en haalt daarna de antwoorden op.
+
+```bash
+php artisan content:generate-ai-answers-batch --source-name=omaweetraad.nl --limit=100
+php artisan content:ai-batch-status batch_...
+php artisan content:collect-ai-batch batch_...
+```
+
+Live vragen via `/vraag-stellen` blijven de normale directe generator gebruiken.
 
 ### Antwoorden (her)genereren vanuit tinker
 

@@ -111,7 +111,7 @@ class OmaWeetRaadImporter
                 $payload = [
                     'title' => $questionTitle,
                     'slug' => Question::makeUniqueSlug($questionTitle),
-                    'body' => 'Onderwerp geimporteerd vanaf Oma Weet Raad. Bron: ' . $link['url'],
+                    'body' => $this->questionBody($questionTitle, $sourcePage),
                     'category_id' => $categoryId ?: $this->categoryIdFor($link['text'], $link['url'], $url),
                     'status' => 'published',
                     'answers_generated' => false,
@@ -174,7 +174,90 @@ class OmaWeetRaadImporter
 
         return [
             'breadcrumbs' => $breadcrumbs,
+            'intro' => $this->pageIntro($xpath),
+            'description' => $this->pageDescription($xpath),
         ];
+    }
+
+    public function publicQuestionBody(string $title, ?string $sourceUrl = null): string
+    {
+        $sourcePage = $sourceUrl ? $this->sourcePageData($sourceUrl) : null;
+
+        return $this->questionBody($title, $sourcePage);
+    }
+
+    private function pageDescription(DOMXPath $xpath): ?string
+    {
+        $node = $xpath->query('//meta[translate(@name, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") = "description"]/@content')->item(0);
+
+        return $node ? $this->cleanPublicDescription((string) $node->nodeValue) : null;
+    }
+
+    private function pageIntro(DOMXPath $xpath): ?string
+    {
+        foreach ($xpath->query('//h1/following::p[position() <= 3]') as $node) {
+            $text = $this->cleanPublicDescription((string) $node->textContent);
+            if ($text) {
+                return $text;
+            }
+        }
+
+        return null;
+    }
+
+    private function cleanPublicDescription(?string $description): ?string
+    {
+        if (! $description) {
+            return null;
+        }
+
+        $description = html_entity_decode($description, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $description = preg_replace('/\s+/u', ' ', trim($description));
+        $lower = Str::lower($description ?? '');
+        $seoFragments = [
+            'beste oplossing',
+            'ervaringen met',
+            'lees grootmoeders tips',
+            'oma weet raadt',
+            'alle oma',
+            'stuur ons je tip',
+            'gouden randje',
+        ];
+
+        foreach ($seoFragments as $fragment) {
+            if (str_contains($lower, $fragment)) {
+                return null;
+            }
+        }
+
+        $description = preg_replace('/\b(Oma Weet Raad|omaweetraad\.nl)\b\.?/iu', '', $description ?? '');
+        $description = preg_replace('/\btips\s+van\s+Oma\b/iu', 'tips', $description ?? '');
+        $description = preg_replace('/\bvan\s+grootmoeder\b/iu', '', $description ?? '');
+        $description = preg_replace('/\bLees\s+grootmoeders\s+tips\.?/iu', '', $description ?? '');
+        $description = preg_replace('/\bBekijk\s+alle\s+tips\.?/iu', '', $description ?? '');
+        $description = trim((string) preg_replace('/\s+/u', ' ', $description ?? ''));
+        $description = trim($description, " \t\n\r\0\x0B-–—.|");
+
+        if (mb_strlen($description) < 30) {
+            return null;
+        }
+
+        return rtrim($description, '.') . '.';
+    }
+
+    private function questionBody(string $questionTitle, ?array $sourcePage = null): string
+    {
+        $intro = $this->cleanPublicDescription($sourcePage['intro'] ?? null);
+        if ($intro) {
+            return $intro;
+        }
+
+        $description = $this->cleanPublicDescription($sourcePage['description'] ?? null);
+        if ($description) {
+            return $description;
+        }
+
+        return 'Praktische vraag over ' . Str::lower(rtrim($questionTitle, '?')) . ', met aandacht voor veilige en haalbare oplossingen.';
     }
 
     private function breadcrumbs(DOMXPath $xpath): array
@@ -396,7 +479,8 @@ class OmaWeetRaadImporter
             'computers-elektronica' => 'computers-elektronica',
             'eten-en-drinken' => 'eten-en-drinken',
             'hobby' => 'hobby',
-            'omas-oudste-trucjes' => 'omas-oudste-trucjes',
+            'omas-oudste-trucjes' => 'ai-trucjes',
+            'ai-trucjes' => 'ai-trucjes',
             'uiterlijk-verzorging' => 'uiterlijk-verzorging',
             'vervoer-auto' => 'vervoer-auto',
             'duurzaamheid' => 'duurzaamheid',

@@ -989,7 +989,7 @@ class StubDriver implements AnswerDriver
                 'Bewaar half werk stofvrij, vlak of op spanning afhankelijk van de techniek.',
                 'Rond af met een kleine verbetering in plaats van eindeloos perfectioneren.',
             ],
-            'omas-oudste-trucjes' => [
+            'ai-trucjes' => [
                 'Kies een milde huis-tuin-en-keukenmethode en test die klein.',
                 'Gebruik azijn, soda, zout of citroen alleen op materialen die daartegen kunnen.',
                 'Geef het middel tijd om te werken, maar laat het niet onnodig lang zitten.',

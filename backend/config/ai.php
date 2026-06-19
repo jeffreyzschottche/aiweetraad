@@ -16,7 +16,7 @@ return [
 
     'alerts' => [
         'enabled' => env('AI_BUDGET_ALERTS_ENABLED', true),
-        'admin_email' => env('AI_ADMIN_EMAIL'),
+        'admin_email' => env('AI_ADMIN_EMAIL', env('ADMIN_EMAIL')),
         'throttle_minutes' => env('AI_BUDGET_ALERT_THROTTLE_MINUTES', 60),
     ],
 
@@ -33,6 +33,7 @@ return [
 
     'openai' => [
         'key' => env('OPENAI_API_KEY'),
+        'admin_key' => env('OPENAI_ADMIN_KEY'),
         'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com'),
         'default_model' => env('OPENAI_DEFAULT_MODEL', 'gpt-5.4-mini'),
         'max_tokens' => env('OPENAI_MAX_TOKENS', 900),
@@ -69,12 +70,12 @@ return [
     | Prices are USD per 1M input/output tokens.
     */
     'expected_output_tokens' => env('AI_EXPECTED_OUTPUT_TOKENS', 700),
-    'fallback_order' => ['openai', 'gemini', 'deepseek', 'grok', 'claude'],
+    'fallback_order' => ['deepseek', 'openai', 'gemini', 'grok', 'claude'],
     'providers' => [
         'openai' => [
             'key' => env('OPENAI_API_KEY'),
-            'credit_usd' => env('AI_OPENAI_CREDIT_USD', 0),
-            'spent_today_usd' => env('AI_OPENAI_SPENT_TODAY_USD', 0),
+            'credit_usd' => env('AI_OPENAI_CREDIT_USD', env('OPENAI_CREDIT_USD', 0)),
+            'spent_today_usd' => env('AI_OPENAI_SPENT_TODAY_USD', env('OPENAI_SPENT_TODAY_USD', 0)),
             'models' => [
                 ['model' => env('OPENAI_DEFAULT_MODEL', 'gpt-5.4-mini'), 'input_per_million' => 0.75, 'output_per_million' => 4.50],
                 ['model' => env('OPENAI_FALLBACK_MODEL', 'gpt-5.4'), 'input_per_million' => 2.50, 'output_per_million' => 15.00],
@@ -82,8 +83,8 @@ return [
         ],
         'gemini' => [
             'key' => env('GEMINI_API_KEY'),
-            'credit_usd' => env('AI_GEMINI_CREDIT_USD', 0),
-            'spent_today_usd' => env('AI_GEMINI_SPENT_TODAY_USD', 0),
+            'credit_usd' => env('AI_GEMINI_CREDIT_USD', env('GEMINI_CREDIT_USD', 0)),
+            'spent_today_usd' => env('AI_GEMINI_SPENT_TODAY_USD', env('GEMINI_SPENT_TODAY_USD', 0)),
             'models' => [
                 ['model' => env('GEMINI_DEFAULT_MODEL', 'gemini-2.5-flash'), 'input_per_million' => 0.30, 'output_per_million' => 2.50],
                 ['model' => env('GEMINI_FALLBACK_MODEL', 'gemini-2.5-flash-lite'), 'input_per_million' => 0.10, 'output_per_million' => 0.40],
@@ -91,8 +92,8 @@ return [
         ],
         'claude' => [
             'key' => env('ANTHROPIC_API_KEY'),
-            'credit_usd' => env('AI_ANTHROPIC_CREDIT_USD', 0),
-            'spent_today_usd' => env('AI_ANTHROPIC_SPENT_TODAY_USD', 0),
+            'credit_usd' => env('AI_ANTHROPIC_CREDIT_USD', env('ANTHROPIC_CREDIT_USD', 0)),
+            'spent_today_usd' => env('AI_ANTHROPIC_SPENT_TODAY_USD', env('ANTHROPIC_SPENT_TODAY_USD', 0)),
             'models' => [
                 ['model' => env('ANTHROPIC_DEFAULT_MODEL', 'claude-sonnet-4-6'), 'input_per_million' => 3.00, 'output_per_million' => 15.00],
                 ['model' => env('ANTHROPIC_FALLBACK_MODEL', 'claude-haiku-4-5'), 'input_per_million' => 1.00, 'output_per_million' => 5.00],
@@ -100,8 +101,8 @@ return [
         ],
         'deepseek' => [
             'key' => env('DEEPSEEK_API_KEY'),
-            'credit_usd' => env('AI_DEEPSEEK_CREDIT_USD', 0),
-            'spent_today_usd' => env('AI_DEEPSEEK_SPENT_TODAY_USD', 0),
+            'credit_usd' => env('AI_DEEPSEEK_CREDIT_USD', env('DEEPSEEK_CREDIT_USD', 0)),
+            'spent_today_usd' => env('AI_DEEPSEEK_SPENT_TODAY_USD', env('DEEPSEEK_SPENT_TODAY_USD', 0)),
             'models' => [
                 ['model' => env('DEEPSEEK_DEFAULT_MODEL', 'deepseek-chat'), 'input_per_million' => 0.27, 'output_per_million' => 1.10],
                 ['model' => env('DEEPSEEK_FALLBACK_MODEL', 'deepseek-reasoner'), 'input_per_million' => 0.55, 'output_per_million' => 2.19],
@@ -109,8 +110,8 @@ return [
         ],
         'grok' => [
             'key' => env('XAI_API_KEY'),
-            'credit_usd' => env('AI_XAI_CREDIT_USD', 0),
-            'spent_today_usd' => env('AI_XAI_SPENT_TODAY_USD', 0),
+            'credit_usd' => env('AI_XAI_CREDIT_USD', env('XAI_CREDIT_USD', 0)),
+            'spent_today_usd' => env('AI_XAI_SPENT_TODAY_USD', env('XAI_SPENT_TODAY_USD', 0)),
             'models' => [
                 ['model' => env('XAI_DEFAULT_MODEL', 'grok-4.3'), 'input_per_million' => 1.25, 'output_per_million' => 2.50],
             ],

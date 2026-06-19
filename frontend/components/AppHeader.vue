@@ -31,15 +31,16 @@
       </nav>
 
       <div class="flex items-center gap-2">
-        <NuxtLink
-          to="/zoeken"
+        <button
+          type="button"
           class="grid h-10 w-10 place-items-center rounded-full text-brand-600 transition hover:bg-white"
           aria-label="Zoeken"
+          @click="openSearch"
         >
           <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" stroke-linecap="round" />
           </svg>
-        </NuxtLink>
+        </button>
 
         <NuxtLink to="/vraag-stellen" class="btn-primary hidden sm:inline-flex">
           Stel je vraag
@@ -81,12 +82,14 @@
       </div>
     </Transition>
     <div class="h-1 bg-gradient-to-r from-brand-600 via-teal2-500 to-blush-300" />
+    <SearchModal :open="searchOpen" @close="searchOpen = false" />
   </header>
 </template>
 
 <script setup lang="ts">
 const authStore = useAuthStore();
 const mobileOpen = ref(false);
+const searchOpen = ref(false);
 const header = ref<HTMLElement | null>(null);
 
 const navLinks = [
@@ -101,6 +104,11 @@ const navLinks = [
 function onScroll() {
   if (!header.value) return;
   header.value.classList.toggle('shadow-card', window.scrollY > 8);
+}
+
+function openSearch() {
+  mobileOpen.value = false;
+  searchOpen.value = true;
 }
 
 onMounted(() => {

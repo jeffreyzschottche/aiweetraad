@@ -6,6 +6,7 @@ use App\Models\AiModel;
 use App\Models\Question;
 use App\Mail\AiBudgetAlertMail;
 use App\Services\AI\AnswerGenerator;
+use App\Services\AI\ProviderSelector;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
@@ -112,5 +113,41 @@ class AiGenerationSafetyTest extends TestCase
 
         $this->assertSame('fallback', $answer->status);
         $this->assertSame('stub', $answer->actual_provider);
+    }
+
+    public function test_provider_selector_uses_configured_real_provider_as_fallback(): void
+    {
+        config([
+            'ai.generation_enabled' => true,
+            'ai.providers.claude.key' => null,
+            'ai.providers.claude.credit_usd' => 0,
+            'ai.providers.openai.key' => 'test-key',
+            'ai.providers.openai.credit_usd' => 5,
+            'ai.providers.openai.models' => [
+                ['model' => 'gpt-test', 'input_per_million' => 0.10, 'output_per_million' => 0.20],
+            ],
+            'ai.fallback_order' => ['openai'],
+        ]);
+
+        $model = AiModel::query()->create([
+            'name' => 'Claude',
+            'slug' => 'claude',
+            'provider' => 'claude',
+            'model_identifier' => 'claude-test',
+            'system_prompt' => 'Je bent Claude. Antwoord zorgvuldig.',
+            'enabled' => true,
+        ]);
+        $question = Question::query()->create([
+            'title' => 'Hoe test ik echte provider fallback?',
+            'slug' => 'hoe-test-ik-echte-provider-fallback',
+            'status' => 'published',
+        ]);
+
+        $candidates = app(ProviderSelector::class)->candidatesFor($model, $question);
+
+        $this->assertCount(1, $candidates);
+        $this->assertSame('openai', $candidates[0]['provider']);
+        $this->assertSame('gpt-test', $candidates[0]['model']);
+        $this->assertTrue($candidates[0]['is_fallback']);
     }
 }

@@ -17,6 +17,10 @@ class CategorySeeder extends Seeder
             Category::where('slug', 'wassen-kleding')->update(['slug' => 'wassen-kledingonderhoud']);
         }
 
+        if (! Category::where('slug', 'ai-trucjes')->exists()) {
+            Category::where('slug', 'omas-oudste-trucjes')->update(['slug' => 'ai-trucjes']);
+        }
+
         $categories = [
             ['Vlekken', 'vlekken', '🧼', '#3b82f6', 'Vlekken uit kleding, meubels, tapijt en tafelkleden krijgen.'],
             ['Gezondheid', 'gezondheid', '🩺', '#ef4444', 'Klachten, kwaaltjes en gezonde gewoontes.'],
@@ -30,7 +34,7 @@ class CategorySeeder extends Seeder
             ['Computers & elektronica', 'computers-elektronica', '💻', '#6366f1', 'Apparaten, software en instellingen.'],
             ['Eten en drinken', 'eten-en-drinken', '🍳', '#f59e0b', 'Recepten, bewaren en keukenkennis.'],
             ['Hobby', 'hobby', '🎨', '#d946ef', 'Knutselen, maken en creatief bezig zijn.'],
-            ["Oma's Oudste Trucjes", 'omas-oudste-trucjes', '🧺', '#b45309', 'Klassieke huis-, tuin- en keukenwijsheid in een AI-jasje.'],
+            ['AI-trucjes', 'ai-trucjes', '✨', '#b45309', 'Slimme huis-, tuin- en keukenoplossingen in een AI-jasje.'],
             ['Uiterlijk & Verzorging', 'uiterlijk-verzorging', '💇', '#ec4899', 'Huid, haar en persoonlijke verzorging.'],
             ['Vervoer & Auto', 'vervoer-auto', '🚗', '#64748b', 'Onderweg, onderhoud en reizen.'],
             ['Duurzaamheid', 'duurzaamheid', '♻️', '#84cc16', 'Besparen, hergebruiken en groener leven.'],

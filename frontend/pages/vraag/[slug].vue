@@ -89,7 +89,7 @@
                 />
                 <span v-else>{{ initials(answer) }}</span>
               </span>
-              <span class="block min-w-0 truncate text-[15px] font-extrabold leading-tight text-brand-900">
+              <span class="block min-w-0 text-xs font-extrabold leading-tight text-brand-900 sm:text-sm xl:text-[13px]">
                 {{ answer.ai_model?.name || 'AI' }}
               </span>
             </span>
@@ -102,12 +102,6 @@
                     : score(answer) >= 0 ? 'bg-teal2-200 text-teal2-600' : 'bg-blush-200 text-blush-500'"
                 >
                   {{ answer.status === 'failed' ? 'offline' : signedScore(answer) }}
-                </span>
-                <span
-                  v-if="answer.status === 'fallback'"
-                  class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-700"
-                >
-                  fallback
                 </span>
                 <span class="whitespace-nowrap text-[11px] font-semibold text-ink/45">
                   {{ answer.upvotes }} werkt

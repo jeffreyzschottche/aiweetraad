@@ -49,16 +49,19 @@ class AiBudgetAlertService
     {
         $providers = collect(config('ai.providers', []))
             ->map(function (array $provider, string $name) {
-                $credit = (float) ($provider['credit_usd'] ?? 0);
-                $spent = AiProviderUsage::spentToday($name) + (float) ($provider['spent_today_usd'] ?? 0);
+                $status = app(ProviderAccountStatusService::class)->status($name);
+                $balance = $status['balance_supported']
+                    ? ($status['balance'] === null ? 'unknown' : $status['balance'] . ' ' . ($status['currency'] ?? ''))
+                    : 'not available';
 
                 return sprintf(
-                    '- %s: key=%s, credit=$%.2f, spent_today=$%.6f, remaining=$%.6f',
+                    '- %s: key=%s, available=%s, live_balance=%s, source=%s, spent_today=$%.6f',
                     $name,
                     empty($provider['key']) ? 'missing' : 'present',
-                    $credit,
-                    $spent,
-                    max(0, $credit - $spent),
+                    $status['is_available'] ? 'yes' : 'no',
+                    $balance,
+                    $status['source'],
+                    AiProviderUsage::spentToday($name),
                 );
             })
             ->implode("\n");
