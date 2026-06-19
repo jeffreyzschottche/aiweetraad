@@ -8,7 +8,7 @@
           <span class="flex -space-x-1">
             <span v-for="m in heroDots" :key="m" class="h-3.5 w-3.5 rounded-full ring-2 ring-white" :style="{ backgroundColor: m }" />
           </span>
-          {{ aiCount }} AI’s · <CountUp :value="home?.stats.questions ?? 0" /> vragen beantwoord
+          Gratis · {{ aiCount }} AI’s · <CountUp :value="home?.stats.questions ?? 0" /> vragen beantwoord
         </p>
 
         <h1 ref="title" class="mx-auto flex max-w-3xl flex-wrap justify-center gap-x-3 gap-y-1 text-4xl font-bold leading-[1.1] text-brand-900 md:text-6xl">
@@ -26,7 +26,7 @@
         </h1>
 
         <p ref="subtitle" class="hero-reveal mx-auto mt-6 max-w-xl text-lg text-ink/70">
-          Eén vraag, meerdere antwoorden. Vergelijk de adviezen en stem op het antwoord dat jou
+          Gratis één vraag stellen en meerdere AI-antwoorden vergelijken. Stem op het advies dat jou
           het beste helpt. 🤍
         </p>
 

@@ -25,10 +25,8 @@ class ResetPasswordNotification extends Notification
 
         return (new MailMessage)
             ->subject('Wachtwoord resetten - AI Weet Raad')
-            ->greeting('Wachtwoord vergeten?')
-            ->line('We hebben een verzoek ontvangen om je wachtwoord opnieuw in te stellen.')
-            ->action('Nieuw wachtwoord kiezen', $url)
-            ->line('Deze link verloopt over 60 minuten.')
-            ->line('Heb jij dit niet aangevraagd? Dan hoef je niets te doen.');
+            ->view('emails.reset-password', [
+                'url' => $url,
+            ]);
     }
 }

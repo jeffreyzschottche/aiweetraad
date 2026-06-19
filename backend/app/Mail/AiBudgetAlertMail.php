@@ -25,6 +25,6 @@ class AiBudgetAlertMail extends Mailable
 
     public function content(): Content
     {
-        return new Content(text: 'emails.ai-budget-alert');
+        return new Content(view: 'emails.ai-budget-alert');
     }
 }

@@ -22,10 +22,9 @@ class AuthServiceProvider extends ServiceProvider
 
             return (new MailMessage)
                 ->subject('Bevestig je e-mailadres - AI Weet Raad')
-                ->greeting('Welkom bij AI Weet Raad')
-                ->line('Bevestig je e-mailadres zodat je account volledig actief is.')
-                ->action('E-mailadres bevestigen', $frontendUrl)
-                ->line('Heb jij dit account niet aangemaakt? Dan hoef je niets te doen.');
+                ->view('emails.verify-email', [
+                    'url' => $frontendUrl,
+                ]);
         });
     }
 }
