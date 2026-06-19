@@ -18,7 +18,20 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         VerifyEmail::toMailUsing(function ($notifiable, $url) {
-            $frontendUrl = config('app.frontend_url') . '/verify-email?url=' . urlencode($url);
+            $verificationTarget = $url;
+            $parts = parse_url($url);
+
+            if (isset($parts['path'])) {
+                $verificationTarget = $parts['path'];
+
+                if (isset($parts['query'])) {
+                    $verificationTarget .= '?' . $parts['query'];
+                }
+            }
+
+            $verificationTarget = preg_replace('#^/api/v1#', '', $verificationTarget) ?: $verificationTarget;
+
+            $frontendUrl = rtrim(config('app.frontend_url'), '/') . '/verify-email?url=' . rawurlencode($verificationTarget);
 
             return (new MailMessage)
                 ->subject('Bevestig je e-mailadres - AI Weet Raad')

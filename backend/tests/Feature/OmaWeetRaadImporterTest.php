@@ -130,6 +130,40 @@ class OmaWeetRaadImporterTest extends TestCase
         ]);
     }
 
+    public function test_importer_maps_oma_trucjes_breadcrumb_to_ai_trucjes(): void
+    {
+        Http::fake([
+            'https://omaweetraad.nl/' => Http::response('
+                <html>
+                    <body>
+                        <a href="/zilver-zwart-geworden">Zilver zwart geworden 5 tips</a>
+                    </body>
+                </html>
+            '),
+            'https://omaweetraad.nl/zilver-zwart-geworden' => Http::response($this->topicHtml("Oma's Oudste Trucjes")),
+        ]);
+
+        app(OmaWeetRaadImporter::class)->import(
+            limit: 10,
+            dryRun: false,
+            sourceUrl: 'https://omaweetraad.nl/',
+            maxPages: 1,
+            validateSourcePages: true,
+        );
+
+        $category = Category::where('slug', 'ai-trucjes')->first();
+
+        $this->assertNotNull($category);
+        $this->assertSame('AI-trucjes', $category->name);
+        $this->assertDatabaseMissing('categories', [
+            'name' => "Oma's Oudste Trucjes",
+        ]);
+        $this->assertDatabaseHas('questions', [
+            'title' => 'Wat helpt bij zilver zwart geworden?',
+            'category_id' => $category->id,
+        ]);
+    }
+
     private function topicHtml(string $category): string
     {
         return '

@@ -70,7 +70,7 @@ onMounted(async () => {
   }
 
   try {
-    await apiFetch(verificationUrl);
+    await apiFetch(normalizeVerificationEndpoint(verificationUrl));
     success.value = true;
   } catch (err: any) {
     error.value = err.message || 'E-mailadres bevestigen is mislukt.';
@@ -78,4 +78,17 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+function normalizeVerificationEndpoint(url: string): string {
+  if (!url.startsWith('http')) {
+    return stripApiPrefix(url);
+  }
+
+  const parsed = new URL(url);
+  return stripApiPrefix(`${parsed.pathname}${parsed.search}`);
+}
+
+function stripApiPrefix(endpoint: string): string {
+  return endpoint.replace(/^\/api\/v1/, '') || endpoint;
+}
 </script>

@@ -60,14 +60,54 @@
         </section>
       </div>
 
-      <div v-if="processing" class="fixed inset-0 z-50 grid place-items-center bg-brand-900 px-4 text-center text-white">
-        <div>
-          <div class="mx-auto mb-7 h-20 w-20 rounded-full border-4 border-white/20 border-t-blush-300 animate-spin" />
-          <p class="font-display text-3xl font-bold md:text-5xl">{{ progressText }}</p>
-          <p class="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-white/50">
-            Even geduld, we verzamelen de antwoorden.
-          </p>
-        </div>
+      <div v-if="processing" class="fixed inset-0 z-50 grid place-items-center bg-brand-900 px-4 text-white">
+        <section class="w-full max-w-3xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#062f30] shadow-2xl">
+          <div class="flex items-center justify-between border-b border-white/10 bg-black/20 px-5 py-3">
+            <div class="flex items-center gap-2">
+              <span class="h-3 w-3 rounded-full bg-blush-300" />
+              <span class="h-3 w-3 rounded-full bg-amber-300" />
+              <span class="h-3 w-3 rounded-full bg-teal2-300" />
+            </div>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-white/45">AI Weet Raad terminal</p>
+          </div>
+
+          <div class="p-5 sm:p-7">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p class="text-sm font-bold uppercase tracking-[0.18em] text-teal2-200">Vraag verwerken</p>
+                <h2 class="mt-2 font-display text-3xl font-bold leading-tight md:text-5xl">
+                  De AI’s zijn bezig
+                </h2>
+              </div>
+              <p class="rounded-full bg-white/10 px-4 py-2 text-sm font-extrabold text-white">
+                {{ progressPercent }}%
+              </p>
+            </div>
+
+            <div class="mt-6 h-3 overflow-hidden rounded-full bg-white/10">
+              <div class="h-full rounded-full bg-gradient-to-r from-teal2-300 via-white to-blush-300 transition-all duration-700" :style="{ width: `${progressPercent}%` }" />
+            </div>
+
+            <div class="mt-6 rounded-2xl border border-white/10 bg-black/25 p-4 font-mono text-sm">
+              <div v-for="(step, index) in terminalSteps" :key="step.label" class="flex gap-3 py-1.5">
+                <span class="w-5 shrink-0 text-right" :class="stepClass(index)">
+                  {{ stepPrefix(index) }}
+                </span>
+                <span class="min-w-0 flex-1" :class="stepClass(index)">
+                  {{ step.label }}
+                </span>
+              </div>
+              <div class="mt-3 flex gap-3 border-t border-white/10 pt-3 text-white/70">
+                <span class="w-5 shrink-0 text-right text-teal2-200">›</span>
+                <span>{{ activeTerminalLine }}<span class="terminal-cursor">_</span></span>
+              </div>
+            </div>
+
+            <p class="mt-5 text-center text-sm font-semibold text-white/55">
+              Dit kan even duren. Sluit dit venster niet; je vraagpagina verschijnt zodra de antwoorden klaar zijn.
+            </p>
+          </div>
+        </section>
       </div>
 
       <div v-if="successQuestion" class="fixed inset-0 z-50 grid place-items-center bg-brand-900/60 px-4 backdrop-blur-sm">
@@ -111,23 +151,36 @@ const error = ref('');
 const confirmOpen = ref(false);
 const accepted = ref(false);
 const processing = ref(false);
-const phaseIndex = ref(0);
+const elapsedSeconds = ref(0);
 const successQuestion = ref<Question | null>(null);
 const copied = ref(false);
 let phaseTimer: ReturnType<typeof setInterval> | null = null;
 
-const progressPhases = [
-  'Vraag stellen...',
-  'Gemini benaderen...',
-  'OpenAI benaderen...',
-  'Claude benaderen...',
-  'Grok benaderen...',
-  'DeepSeek benaderen...',
-  'Antwoorden controleren...',
-  'Vraagpagina publiceren...',
+const terminalSteps = [
+  { label: 'Vraag ontvangen en controleren' },
+  { label: 'ChatGPT benaderen' },
+  { label: 'Claude benaderen' },
+  { label: 'Gemini benaderen' },
+  { label: 'Grok benaderen' },
+  { label: 'DeepSeek benaderen' },
+  { label: 'Antwoorden opslaan' },
+  { label: 'Vraagpagina publiceren' },
 ];
 const confettiColors = ['#006A6C', '#f9c6c5', '#f59e0b', '#10a37f', '#4285f4'];
-const progressText = computed(() => progressPhases[phaseIndex.value % progressPhases.length]);
+const activeStepIndex = computed(() => Math.min(Math.floor(elapsedSeconds.value / 3), terminalSteps.length - 1));
+const progressPercent = computed(() => {
+  const base = Math.min(92, 8 + elapsedSeconds.value * 5);
+  const stepBoost = activeStepIndex.value * 6;
+
+  return Math.min(92, Math.max(base, 12 + stepBoost));
+});
+const activeTerminalLine = computed(() => {
+  if (activeStepIndex.value >= terminalSteps.length - 1) {
+    return 'Laatste checks draaien, bijna klaar';
+  }
+
+  return terminalSteps[activeStepIndex.value]?.label + '...';
+});
 const questionPath = computed(() => successQuestion.value ? `/vraag/${successQuestion.value.slug}` : '/');
 
 onMounted(async () => {
@@ -160,10 +213,10 @@ async function confirmAndSubmit() {
   confirmOpen.value = false;
   loading.value = true;
   processing.value = true;
-  phaseIndex.value = 0;
+  elapsedSeconds.value = 0;
   phaseTimer = setInterval(() => {
-    phaseIndex.value += 1;
-  }, 1300);
+    elapsedSeconds.value += 1;
+  }, 1000);
 
   try {
     const res = await api.post<{ data: Question }>('/questions', {
@@ -196,6 +249,18 @@ async function copyQuestionLink() {
     copied.value = false;
   }, 1800);
 }
+
+function stepPrefix(index: number): string {
+  if (index < activeStepIndex.value) return '✓';
+  if (index === activeStepIndex.value) return '…';
+  return '·';
+}
+
+function stepClass(index: number): string {
+  if (index < activeStepIndex.value) return 'text-teal2-200';
+  if (index === activeStepIndex.value) return 'text-white';
+  return 'text-white/35';
+}
 </script>
 
 <style scoped>
@@ -216,6 +281,24 @@ async function copyQuestionLink() {
   100% {
     opacity: 0;
     transform: translateY(220px) rotate(260deg);
+  }
+}
+
+.terminal-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  color: #f9c6c5;
+  animation: cursor-blink 0.9s steps(2, start) infinite;
+}
+
+@keyframes cursor-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  46%,
+  100% {
+    opacity: 0;
   }
 }
 </style>

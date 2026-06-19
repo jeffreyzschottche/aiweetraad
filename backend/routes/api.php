@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\AnswerController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\ContactController;
 use App\Http\Controllers\Api\V1\HomeController;
+use App\Http\Controllers\Api\V1\NewsletterController;
 use App\Http\Controllers\Api\V1\PageController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\QuestionController;
@@ -33,6 +34,7 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/pages/{page}', [PageController::class, 'show']);
     Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:contact');
+    Route::post('/newsletter', [NewsletterController::class, 'store'])->middleware('throttle:contact');
 
     // ---- Protected ----
     Route::middleware('auth:sanctum')->group(function () {

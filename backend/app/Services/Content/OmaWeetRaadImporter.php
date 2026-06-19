@@ -418,19 +418,34 @@ class OmaWeetRaadImporter
                 continue;
             }
 
+            $defaults = $this->categoryDefaults($slug, $name);
+
             return Category::firstOrCreate(
                 ['slug' => $slug],
-                [
-                    'name' => Str::headline($name),
-                    'description' => 'Onderwerpen geimporteerd vanaf Oma Weet Raad.',
-                    'icon' => '💡',
-                    'color' => '#6366f1',
-                    'sort_order' => (int) Category::max('sort_order') + 1,
-                ],
+                $defaults + ['sort_order' => (int) Category::max('sort_order') + 1],
             )->id;
         }
 
         return null;
+    }
+
+    private function categoryDefaults(string $slug, string $sourceName): array
+    {
+        if ($slug === 'ai-trucjes') {
+            return [
+                'name' => 'AI-trucjes',
+                'description' => 'Slimme huis-, tuin- en keukenoplossingen in een AI-jasje.',
+                'icon' => '✨',
+                'color' => '#b45309',
+            ];
+        }
+
+        return [
+            'name' => Str::headline($sourceName),
+            'description' => 'Praktische vragen en oplossingen rond dit onderwerp.',
+            'icon' => '💡',
+            'color' => '#6366f1',
+        ];
     }
 
     private function categorySlugFromBreadcrumbs(array $breadcrumbs): ?string

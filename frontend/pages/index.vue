@@ -26,8 +26,8 @@
         </h1>
 
         <p ref="subtitle" class="hero-reveal mx-auto mt-6 max-w-xl text-lg text-ink/70">
-          Gratis één vraag stellen en meerdere AI-antwoorden vergelijken. Stem op het advies dat jou
-          het beste helpt. 🤍
+          Gratis met een account: stel je vragen, vergelijk meerdere AI-antwoorden en stem op het
+          advies dat jou het beste helpt. 🤍
         </p>
 
         <form ref="searchForm" class="hero-reveal mx-auto mt-8 flex max-w-xl flex-col gap-2 sm:flex-row" @submit.prevent="goAsk">
@@ -225,35 +225,35 @@ const aiProfiles: AiProfile[] = [
     role: 'Structuur',
     logo: '/images/chatgpt.png',
     needsWhiteBg: true,
-    copy: 'Sterk in overzichtelijke stappen, samenvatten en praktische checklists voor alledaagse vragen.',
+    copy: 'Maakt antwoorden overzichtelijk met heldere stappen, samenvattingen en praktische checklists.',
   },
   {
     name: 'Claude',
     role: 'Nuance',
     logo: '/images/claudelogo.png',
     needsWhiteBg: true,
-    copy: 'Geeft vaak zorgvuldige afwegingen en benoemt wanneer je beter voorzichtig moet zijn.',
+    copy: 'Sterk in zorgvuldige afwegingen, nuance en rustige uitleg bij vragen waar context telt.',
   },
   {
     name: 'Gemini',
     role: 'Vergelijken',
     logo: '/images/geminilogo.png',
     needsWhiteBg: true,
-    copy: 'Handig voor korte, directe antwoorden en alternatieve invalshoeken op dezelfde vraag.',
+    copy: 'Geeft vlot bruikbare antwoorden en legt makkelijk verbanden tussen verschillende invalshoeken.',
   },
   {
     name: 'Grok',
     role: 'Tegenstem',
     logo: '/images/groklogo.png',
     needsWhiteBg: true,
-    copy: 'Zet advies scherper neer en helpt om een antwoord niet klakkeloos van één AI over te nemen.',
+    copy: 'Bekijkt vragen direct, scherp en nuchter, met ruimte voor een eigenzinnige praktische insteek.',
   },
   {
     name: 'DeepSeek',
     role: 'Analyse',
     logo: '/images/deepseek.png',
     needsWhiteBg: true,
-    copy: 'Sterk in logisch redeneren, alternatieven afwegen en compacte analyses bij praktische vragen.',
+    copy: 'Blinkt uit in logisch redeneren, compact analyseren en opties tegen elkaar afwegen.',
   },
 ];
 
@@ -268,7 +268,7 @@ function aiLogoClass(ai: AiProfile, placement: 'hero' | 'card'): string {
 usePageSeo({
   title: 'Stel je vraag aan meerdere AI’s tegelijk',
   description:
-    'Stel één praktische vraag en vergelijk antwoorden van ChatGPT, Claude, Gemini, Grok en DeepSeek. Stem op het advies dat jou het beste helpt.',
+    'Stel gratis je vragen en vergelijk antwoorden van ChatGPT, Claude, Gemini, Grok en DeepSeek. Stem op het advies dat jou het beste helpt.',
   path: '/',
 });
 
@@ -280,7 +280,7 @@ useJsonLd('home-page', () => {
     url: siteUrl,
     name: 'AI Weet Raad',
     description:
-      'Stel één praktische vraag en vergelijk antwoorden van meerdere AI-assistenten.',
+      'Stel gratis je vragen en vergelijk antwoorden van meerdere AI-assistenten.',
     primaryImageOfPage: absoluteUrl('/images/aiweetraadlogo.png'),
   };
 });
