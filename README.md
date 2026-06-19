@@ -110,11 +110,16 @@ vraag wordt maar één keer gegenereerd.
   AI_ANTHROPIC_CREDIT_USD=25
   AI_DEEPSEEK_CREDIT_USD=25
   AI_XAI_CREDIT_USD=25
+
+  AI_BUDGET_ALERTS_ENABLED=true
+  AI_ADMIN_EMAIL=admin@jouwdomein.nl
+  AI_BUDGET_ALERT_THROTTLE_MINUTES=60
   ```
   De provider-router kiest dan per antwoord een provider/model op basis van key, ingestelde credits
   en geschatte tokenkosten. Als geen provider beschikbaar is, wordt het antwoord `failed` in plaats
   van stilletjes een nepantwoord te tonen. Offline fallback kan alleen bewust met
-  `AI_ALLOW_STUB_FALLBACK=true`.
+  `AI_ALLOW_STUB_FALLBACK=true`. Als `AI_ADMIN_EMAIL` is gevuld, stuurt de backend maximaal één
+  alert per throttle-window wanneer er geen bruikbare provider over is of wanneer alle providers falen.
 
 Wanneer een bezoeker een **nieuwe** vraag stelt via `/vraag-stellen`, genereert de AI direct en
 wordt het resultaat gecached.
@@ -149,6 +154,22 @@ Kosten/failures bekijken:
 
 ```bash
 php artisan ai:usage
+```
+
+### Oma Weet Raad onderwerpen importeren
+
+Gebruik eerst altijd een dry-run. Het command importeert onderwerpen/links als eigen vragen en bewaart
+de bron-hash, zodat dezelfde bron niet dubbel binnenkomt.
+
+```bash
+php artisan content:import-oma --dry-run --limit=100 --pages=10
+php artisan content:import-oma --limit=100 --pages=10
+```
+
+Wil je direct AI-antwoorden laten genereren voor de geimporteerde vragen:
+
+```bash
+php artisan content:import-oma --limit=100 --pages=10 --generate-ai
 ```
 
 ### Antwoorden (her)genereren vanuit tinker

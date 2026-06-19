@@ -14,6 +14,12 @@ return [
     'generation_enabled' => env('AI_GENERATION_ENABLED', false),
     'allow_stub_fallback' => env('AI_ALLOW_STUB_FALLBACK', false),
 
+    'alerts' => [
+        'enabled' => env('AI_BUDGET_ALERTS_ENABLED', true),
+        'admin_email' => env('AI_ADMIN_EMAIL'),
+        'throttle_minutes' => env('AI_BUDGET_ALERT_THROTTLE_MINUTES', 60),
+    ],
+
     // Hard cap so a runaway seed can never burn a fortune in one run.
     'max_generations_per_run' => env('AI_MAX_GENERATIONS_PER_RUN', 200),
 

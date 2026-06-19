@@ -67,31 +67,33 @@
             type="button"
             role="tab"
             :aria-selected="activeAnswerId === answer.id"
-            class="group flex min-h-[108px] items-center gap-4 rounded-2xl border-2 p-4 text-left transition"
+            class="group grid min-h-[126px] min-w-0 grid-rows-[auto_1fr] gap-3 overflow-hidden rounded-2xl border-2 p-3 text-left transition"
             :class="activeAnswerId === answer.id
               ? 'border-brand-500 bg-brand-50 shadow-card'
               : 'border-transparent hover:border-brand-100 hover:bg-brand-50/60'"
             @click="activeAnswerId = answer.id"
           >
-            <span
-              class="grid h-12 w-12 shrink-0 place-items-center rounded-full text-sm font-bold text-white"
-              :style="logoBubbleStyle(answer)"
-            >
-              <img
-                v-if="aiLogo(answer) && !failedLogos[answer.id]"
-                :src="aiLogo(answer)"
-                :alt="`${answer.ai_model.name} logo`"
-                class="h-9 w-9 rounded-full object-contain"
-                :class="logoImageClass(answer)"
-                loading="lazy"
-                @error="failedLogos[answer.id] = true"
-              />
-              <span v-else>{{ initials(answer) }}</span>
-            </span>
-            <span class="min-w-0 flex-1">
-              <span class="block whitespace-nowrap text-base font-extrabold leading-tight text-brand-900">
+            <span class="flex min-w-0 items-center gap-2.5">
+              <span
+                class="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold text-white"
+                :style="logoBubbleStyle(answer)"
+              >
+                <img
+                  v-if="aiLogo(answer) && !failedLogos[answer.id]"
+                  :src="aiLogo(answer)"
+                  :alt="`${answer.ai_model.name} logo`"
+                  class="h-8 w-8 rounded-full object-contain"
+                  :class="logoImageClass(answer)"
+                  loading="lazy"
+                  @error="failedLogos[answer.id] = true"
+                />
+                <span v-else>{{ initials(answer) }}</span>
+              </span>
+              <span class="block min-w-0 truncate text-[15px] font-extrabold leading-tight text-brand-900">
                 {{ answer.ai_model?.name || 'AI' }}
               </span>
+            </span>
+            <span class="flex min-w-0 flex-col justify-end">
               <span class="mt-1 flex flex-wrap items-center gap-1.5">
                 <span
                   class="rounded-full px-2 py-0.5 text-[11px] font-bold"

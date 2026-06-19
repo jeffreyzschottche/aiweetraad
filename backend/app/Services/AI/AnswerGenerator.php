@@ -16,6 +16,7 @@ class AnswerGenerator
         private DeepSeekDriver $deepseek,
         private GrokDriver $grok,
         private ProviderSelector $selector,
+        private AiBudgetAlertService $alerts,
     ) {
     }
 
@@ -68,11 +69,10 @@ class AnswerGenerator
         $candidates = $this->selector->candidatesFor($model, $question);
 
         if ($candidates === []) {
-            return $this->failedAnswer(
-                'Geen beschikbare provider met API-key en budget voor dit model.',
-                $question,
-                $model
-            );
+            $message = 'Geen beschikbare provider met API-key en budget voor dit model.';
+            $this->alerts->notifyNoProviderAvailable($question, $model, $message);
+
+            return $this->failedAnswer($message, $question, $model);
         }
 
         foreach ($candidates as $candidate) {
@@ -101,7 +101,10 @@ class AnswerGenerator
             }
         }
 
-        return $this->failedAnswer($lastError ?: 'Alle providers faalden voor dit antwoord.', $question, $model);
+        $message = $lastError ?: 'Alle providers faalden voor dit antwoord.';
+        $this->alerts->notifyAllCandidatesFailed($question, $model, $message);
+
+        return $this->failedAnswer($message, $question, $model);
     }
 
     private function failedAnswer(string $message, Question $question, AiModel $model): array

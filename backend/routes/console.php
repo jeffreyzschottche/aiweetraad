@@ -9,6 +9,8 @@ use App\Models\AiProviderUsage;
 use App\Models\AiModel;
 use App\Models\Question;
 use App\Services\AI\AnswerGenerator;
+use App\Services\Content\OmaWeetRaadImporter;
+use App\Services\Content\OmaWeetRaadSourceAnswerGenerator;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -130,6 +132,89 @@ Artisan::command('content:generate-ai-answers
 
     return 0;
 })->purpose('Generate real AI answers for existing questions using configured provider keys and budgets');
+
+Artisan::command('content:import-oma
+    {--limit=100 : Maximaal aantal nieuwe vragen}
+    {--pages=10 : Maximaal aantal bronpagina\'s om te bezoeken}
+    {--source=https://omaweetraad.nl/ : Start-URL}
+    {--dry-run : Toon import zonder database-writes}
+    {--generate-ai : Genereer direct AI-antwoorden voor geimporteerde vragen}', function (OmaWeetRaadImporter $importer, AnswerGenerator $generator, OmaWeetRaadSourceAnswerGenerator $sourceGenerator) {
+    $result = $importer->import(
+        limit: (int) $this->option('limit'),
+        dryRun: (bool) $this->option('dry-run'),
+        sourceUrl: (string) $this->option('source'),
+        maxPages: (int) $this->option('pages'),
+        validateSourcePages: true,
+    );
+
+    $created = collect($result['created']);
+
+    $this->info(($this->option('dry-run') ? 'Dry-run: ' : '') . $created->count() . ' vraag/vragen gevonden.');
+    $this->line('Bezochte pagina\'s: ' . count($result['visited_pages']) . ', overgeslagen: ' . $result['skipped']);
+
+    $created->take(20)->each(function ($question) {
+        $title = is_array($question) ? $question['title'] : $question->title;
+        $this->line('- ' . $title);
+    });
+
+    if (! $this->option('dry-run') && $this->option('generate-ai')) {
+        $bar = $this->output->createProgressBar($created->count());
+        $bar->start();
+
+        $created->each(function (Question $question) use ($generator, $bar) {
+            if ($question->source_name === 'omaweetraad.nl') {
+                app(OmaWeetRaadSourceAnswerGenerator::class)->generateForQuestion($question, force: true);
+            } else {
+                $generator->generateForQuestion($question);
+            }
+            $bar->advance();
+        });
+
+        $bar->finish();
+        $this->newLine();
+    }
+
+    return 0;
+})->purpose('Import Oma Weet Raad topics as questions in batches');
+
+Artisan::command('content:repair-oma-import
+    {--answers : Vervang antwoorden door brongebaseerde Oma-antwoorden}
+    {--categories : Herbereken categorieen}
+    {--limit=0 : Maximaal aantal vragen, 0 is alles}', function (OmaWeetRaadImporter $importer, OmaWeetRaadSourceAnswerGenerator $sourceGenerator) {
+    $query = Question::query()
+        ->where('source_name', 'omaweetraad.nl')
+        ->orderBy('id');
+
+    $limit = (int) $this->option('limit');
+    if ($limit > 0) {
+        $query->limit($limit);
+    }
+
+    $questions = $query->get();
+    $bar = $this->output->createProgressBar($questions->count());
+    $bar->start();
+
+    foreach ($questions as $question) {
+        if ($this->option('categories')) {
+            $question->forceFill([
+                'category_id' => $sourceGenerator->categoryIdForQuestion($question)
+                    ?: $importer->inferCategoryId($question->title, $question->source_url),
+            ])->save();
+        }
+
+        if ($this->option('answers')) {
+            $sourceGenerator->generateForQuestion($question, force: true);
+        }
+
+        $bar->advance();
+    }
+
+    $bar->finish();
+    $this->newLine(2);
+    $this->info('Oma-import hersteld voor ' . $questions->count() . ' vraag/vragen.');
+
+    return 0;
+})->purpose('Repair imported Oma Weet Raad categories and source-based answers');
 
 Artisan::command('ai:usage {date?}', function (?string $date = null) {
     $date = $date ?: now()->toDateString();

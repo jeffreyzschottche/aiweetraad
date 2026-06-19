@@ -15,10 +15,12 @@ class Question extends Model
     protected $fillable = [
         'category_id', 'user_id', 'title', 'slug', 'body',
         'status', 'answers_generated', 'views',
+        'source_name', 'source_url', 'source_hash', 'source_imported_at',
     ];
 
     protected $casts = [
         'answers_generated' => 'boolean',
+        'source_imported_at' => 'datetime',
     ];
 
     public function category(): BelongsTo
