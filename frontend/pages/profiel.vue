@@ -141,6 +141,10 @@ const { data: activityResponse, pending } = await useAsyncData('profile-activity
 );
 const activity = computed(() => activityResponse.value?.data ?? null);
 
+onMounted(() => {
+  authStore.refreshUser().catch(() => null);
+});
+
 const initials = computed(() =>
   (authStore.user?.name || '?')
     .split(' ')

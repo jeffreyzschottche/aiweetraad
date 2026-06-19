@@ -10,6 +10,11 @@ export interface RegisterResponse {
   user: User;
 }
 
+export interface GoogleExchangeResponse {
+  token: string;
+  user: User;
+}
+
 export interface MessageResponse {
   message: string;
 }

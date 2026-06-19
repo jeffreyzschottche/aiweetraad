@@ -8,6 +8,21 @@
         </p>
       </div>
 
+      <button
+        type="button"
+        class="mb-4 flex w-full items-center justify-center gap-3 rounded-full border-2 border-brand-100 bg-white px-5 py-3 text-sm font-extrabold text-brand-900 shadow-soft transition hover:border-brand-200 hover:bg-brand-50"
+        @click="loginWithGoogle"
+      >
+        <span class="grid h-6 w-6 place-items-center rounded-full bg-white text-base shadow-sm">G</span>
+        Inloggen met Google
+      </button>
+
+      <div class="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.16em] text-ink/35">
+        <span class="h-px flex-1 bg-brand-100" />
+        of
+        <span class="h-px flex-1 bg-brand-100" />
+      </div>
+
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div v-if="error" class="rounded-2xl bg-blush-100 p-3 text-sm font-semibold text-blush-500">
           {{ error }}
@@ -102,5 +117,9 @@ async function handleLogin() {
   } finally {
     loading.value = false;
   }
+}
+
+function loginWithGoogle() {
+  window.location.href = authStore.googleRedirectUrl();
 }
 </script>

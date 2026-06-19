@@ -52,6 +52,7 @@ const route = useRoute();
 const loading = ref(true);
 const success = ref(false);
 const error = ref('');
+const authStore = useAuthStore();
 
 usePageSeo({
   title: 'E-mailadres bevestigen',
@@ -71,6 +72,7 @@ onMounted(async () => {
 
   try {
     await apiFetch(normalizeVerificationEndpoint(verificationUrl));
+    await authStore.refreshUser().catch(() => null);
     success.value = true;
   } catch (err: any) {
     error.value = err.message || 'E-mailadres bevestigen is mislukt.';

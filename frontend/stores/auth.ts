@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { User } from '~/types/User';
-import type { LoginResponse, RegisterResponse, MessageResponse } from '~/types/ApiResponse';
+import type { LoginResponse, RegisterResponse, MessageResponse, GoogleExchangeResponse } from '~/types/ApiResponse';
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(null);
@@ -36,6 +36,22 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = JSON.parse(storedUser);
       }
     }
+  }
+
+  async function refreshUser() {
+    if (!token.value) {
+      return null;
+    }
+
+    const api = useApi();
+    const freshUser = await api.get<User>('/me');
+    user.value = freshUser;
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('auth_user', JSON.stringify(freshUser));
+    }
+
+    return freshUser;
   }
 
   async function login(email: string, password: string) {
@@ -87,6 +103,18 @@ export const useAuthStore = defineStore('auth', () => {
     return await api.post<MessageResponse>('/email/resend');
   }
 
+  function googleRedirectUrl(): string {
+    const config = useRuntimeConfig();
+    return `${config.public.apiBaseUrl}/auth/google/redirect`;
+  }
+
+  async function exchangeGoogleCode(code: string) {
+    const api = useApi();
+    const response = await api.post<GoogleExchangeResponse>('/auth/google/exchange', { code });
+    setSession(response.token, response.user);
+    return response.user;
+  }
+
   return {
     token,
     user,
@@ -94,11 +122,14 @@ export const useAuthStore = defineStore('auth', () => {
     setSession,
     logout,
     restore,
+    refreshUser,
     login,
     register,
     forgotPassword,
     resetPassword,
     resendVerification,
+    googleRedirectUrl,
+    exchangeGoogleCode,
     isPremium,
   };
 });
